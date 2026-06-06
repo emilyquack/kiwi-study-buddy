@@ -70,10 +70,76 @@ function testPracticeProblemIsGeneratedByKiwi() {
     state: DEFAULT_STATE
   });
   assert.match(response, /Kiwi-generated practice/i);
+  assert.match(response, /Conceptual questions/i);
+  assert.match(response, /Free response questions/i);
   assert.match(response, /2 H2 \+ O2 → 2 H2O/);
   assert.match(response, /How many grams of H2O/i);
   assert.match(response, /Answer key/i);
   assert.doesNotMatch(response, /Identify what is given/);
+}
+
+function testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic() {
+  Object.entries(SUBJECTS).forEach(([subjectKey, subject]) => {
+    if (subjectKey === "math") {
+      Object.entries(subject.topicsByLevel).forEach(([level, topics]) => {
+        topics.forEach(topic => {
+          const response = buildPracticeProblem({
+            subjectKey,
+            topic,
+            state: { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: level, activeTopic: topic }
+          });
+          assert.match(response, /Conceptual questions/i, `${level} ${topic} needs conceptual practice`);
+          assert.match(response, /Free response questions/i, `${level} ${topic} needs free-response practice`);
+          assert.match(response, /Answer key/i, `${level} ${topic} needs an answer key`);
+        });
+      });
+      return;
+    }
+    subject.topics.forEach(topic => {
+      const response = buildPracticeProblem({
+        subjectKey,
+        topic,
+        state: { ...DEFAULT_STATE, activeSubject: subjectKey, activeTopic: topic }
+      });
+      assert.match(response, /Conceptual questions/i, `${subject.label} ${topic} needs conceptual practice`);
+      assert.match(response, /Free response questions/i, `${subject.label} ${topic} needs free-response practice`);
+      assert.match(response, /Answer key/i, `${subject.label} ${topic} needs an answer key`);
+    });
+  });
+}
+
+function testEveryBuiltInTopicHasActualLessonLibraryEntry() {
+  Object.entries(SUBJECTS).forEach(([subjectKey, subject]) => {
+    if (subjectKey === "math") {
+      Object.entries(subject.topicsByLevel).forEach(([level, topics]) => {
+        topics.forEach(topic => {
+          const response = buildStudyResponse({
+            subjectKey,
+            action: "Explain",
+            topic,
+            notes: "",
+            confidence: "low",
+            state: { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: level, activeTopic: topic }
+          });
+          assert.match(response, /actual Kiwi explanation/i, `${level} ${topic} needs a real lesson entry`);
+          assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i, `${level} ${topic} should not fall back`);
+        });
+      });
+      return;
+    }
+    subject.topics.forEach(topic => {
+      const response = buildStudyResponse({
+        subjectKey,
+        action: "Explain",
+        topic,
+        notes: "",
+        confidence: "low",
+        state: { ...DEFAULT_STATE, activeSubject: subjectKey, activeTopic: topic }
+      });
+      assert.match(response, /actual Kiwi explanation/i, `${subject.label} ${topic} needs a real lesson entry`);
+      assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i, `${subject.label} ${topic} should not fall back`);
+    });
+  });
 }
 
 function testCustomCommonTopicGetsRealTeaching() {
@@ -158,5 +224,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

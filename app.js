@@ -291,6 +291,24 @@ const EXPLANATION_LIBRARY = {
       testCue: "Look for constant rate, slope, intercept, graphing a line, or solve for x."
     },
     {
+      aliases: ["systems of equations", "systems", "substitution", "elimination"],
+      title: "Systems of equations",
+      overview: "A system of equations is a set of equations that must be true at the same time. The solution is the value or ordered pair where the equations agree.",
+      keyIdeas: ["On a graph, the solution is where the lines or curves intersect.", "Substitution replaces one variable expression with an equal expression from another equation.", "Elimination adds or subtracts equations to cancel a variable."],
+      example: "For x + y = 7 and x - y = 1, adding the equations gives 2x = 8, so x = 4 and y = 3.",
+      mistake: "Do not solve each equation separately and forget the answer must satisfy both equations.",
+      testCue: "Look for two equations, intersection, substitution, elimination, or ordered-pair solution."
+    },
+    {
+      aliases: ["inequalities", "inequality", "linear inequalities", "compound inequalities"],
+      title: "Inequalities",
+      overview: "Inequalities compare quantities using symbols like <, >, ≤, and ≥. The answer is usually a range of values rather than one number.",
+      keyIdeas: ["Solve inequalities with balance moves just like equations.", "Flip the inequality sign when multiplying or dividing both sides by a negative number.", "Graph solutions with open circles for strict inequalities and closed circles for inclusive ones."],
+      example: "If -2x < 6, divide by -2 and flip the sign: x > -3.",
+      mistake: "The classic trap is forgetting to flip the inequality when dividing by a negative. Kiwi hisses at that sign flip.",
+      testCue: "Look for range answers, number lines, at least/at most, greater than, or less than."
+    },
+    {
       aliases: ["functions", "function notation", "domain", "range"],
       title: "Functions",
       overview: "A function is a rule where each input has exactly one output. Function notation like f(x) means the output of function f when the input is x.",
@@ -298,6 +316,168 @@ const EXPLANATION_LIBRARY = {
       example: "If f(x) = x² + 1, then f(3) = 3² + 1 = 10.",
       mistake: "f(x) is not f times x; it means the function's output for input x.",
       testCue: "Expect evaluate, compose, inverse, domain, range, or vertical line test questions."
+    },
+    {
+      aliases: ["exponents", "exponent rules", "powers", "scientific notation"],
+      title: "Exponents",
+      overview: "Exponents show repeated multiplication. They help write very large, very small, or repeatedly multiplied quantities compactly.",
+      keyIdeas: ["Multiplying same bases means add exponents: a^m · a^n = a^(m+n).", "Dividing same bases means subtract exponents: a^m / a^n = a^(m-n).", "A negative exponent means reciprocal, not a negative number."],
+      example: "x^3 · x^4 = x^7 because there are seven x factors total.",
+      mistake: "Do not add exponents when the bases are different, like 2^3 · 3^2.",
+      testCue: "Look for powers, same base, scientific notation, negative exponents, or simplify."
+    },
+    {
+      aliases: ["angles", "angle relationships", "parallel lines", "transversals"],
+      title: "Angles",
+      overview: "Angles measure rotation between rays. Geometry uses angle relationships to find missing measures without measuring directly.",
+      keyIdeas: ["Vertical angles are congruent.", "Supplementary angles add to 180°, and complementary angles add to 90°.", "Parallel lines cut by a transversal create corresponding, alternate interior, and same-side interior relationships."],
+      example: "If two vertical angles are formed and one is 58°, the opposite angle is also 58°.",
+      mistake: "Do not assume angles are equal just because a diagram looks symmetrical; use a named relationship.",
+      testCue: "Look for parallel marks, transversals, vertical angles, supplementary pairs, or missing angle measures."
+    },
+    {
+      aliases: ["triangles", "triangle", "pythagorean theorem", "triangle sum"],
+      title: "Triangles",
+      overview: "Triangles are three-sided polygons whose angle and side relationships power a lot of geometry. Every triangle's interior angles add to 180°.",
+      keyIdeas: ["The Pythagorean theorem a² + b² = c² works for right triangles.", "Triangle inequality says any two sides must add to more than the third side.", "Special triangle types have useful side or angle patterns."],
+      example: "In a right triangle with legs 3 and 4, the hypotenuse is 5 because 3² + 4² = 5².",
+      mistake: "Do not use the Pythagorean theorem unless the triangle is right or you have proven it is right.",
+      testCue: "Look for 180°, right-angle marks, side lengths, congruent sides, or triangle inequality."
+    },
+    {
+      aliases: ["congruence", "congruent triangles", "sss", "sas", "asa", "aas", "hl"],
+      title: "Congruence",
+      overview: "Congruent figures have the same shape and size. Congruence proofs show that matching parts are equal because the whole figures match exactly.",
+      keyIdeas: ["Triangle congruence shortcuts include SSS, SAS, ASA, AAS, and HL for right triangles.", "CPCTC means corresponding parts of congruent triangles are congruent.", "The order of letters tells which vertices correspond."],
+      example: "If two triangles have two matching sides and the included angle equal, SAS proves the triangles congruent.",
+      mistake: "Do not use SSA as a congruence shortcut; it can create ambiguous cases.",
+      testCue: "Look for proof tables, corresponding marks, SSS/SAS/ASA/AAS/HL, or CPCTC."
+    },
+    {
+      aliases: ["similarity", "similar triangles", "scale factor", "proportions"],
+      title: "Similarity",
+      overview: "Similar figures have the same shape but not necessarily the same size. Their corresponding angles match and side lengths are proportional.",
+      keyIdeas: ["Scale factor multiplies lengths from one figure to another.", "Similar triangles can be proven with AA, SAS similarity, or SSS similarity.", "Perimeters scale by the scale factor; areas scale by the square of it."],
+      example: "If two similar triangles have scale factor 3, a side of length 5 corresponds to a side of length 15.",
+      mistake: "Do not mix up corresponding sides when writing proportions.",
+      testCue: "Look for scale drawings, proportional sides, dilation, AA similarity, or missing side lengths."
+    },
+    {
+      aliases: ["circles", "circle theorems", "arc length", "sector area"],
+      title: "Circles",
+      overview: "Circles are sets of points the same distance from a center. Circle problems connect radius, diameter, circumference, arcs, sectors, chords, and angles.",
+      keyIdeas: ["Diameter is twice the radius.", "Circumference is 2πr and area is πr².", "Central angles measure arcs directly; inscribed angles measure half their intercepted arc."],
+      example: "A circle with radius 4 has circumference 8π and area 16π.",
+      mistake: "Do not confuse circumference, which is distance around, with area, which covers the inside.",
+      testCue: "Look for radius, diameter, chord, tangent, secant, arc, sector, or inscribed angle."
+    },
+    {
+      aliases: ["area and volume", "area", "volume", "surface area"],
+      title: "Area and volume",
+      overview: "Area measures two-dimensional space and volume measures three-dimensional space. Formulas depend on the shape and the units tell you whether the answer is squared or cubed.",
+      keyIdeas: ["Area uses square units, like cm².", "Volume uses cubic units, like cm³.", "Composite figures can be split into simpler shapes, then added or subtracted."],
+      example: "A rectangular prism with length 5, width 2, and height 3 has volume 5 · 2 · 3 = 30 cubic units.",
+      mistake: "Do not give volume in square units or area in cubic units. Unit paws matter.",
+      testCue: "Look for cover, fill, surface area, prism, cylinder, cone, sphere, or composite shape."
+    },
+    {
+      aliases: ["quadratics", "quadratic equations", "parabolas", "factoring quadratics"],
+      title: "Quadratics",
+      overview: "Quadratics are degree-2 expressions or functions, usually written ax² + bx + c. Their graphs are parabolas.",
+      keyIdeas: ["The zeros are x-values where the graph crosses the x-axis.", "Factoring, completing the square, and the quadratic formula are solving methods.", "The vertex gives the maximum or minimum point of the parabola."],
+      example: "x² - 5x + 6 factors as (x - 2)(x - 3), so the zeros are 2 and 3.",
+      mistake: "Do not stop after factoring; set each factor equal to zero to solve.",
+      testCue: "Look for parabola, vertex, zeros, roots, discriminant, or ax² + bx + c."
+    },
+    {
+      aliases: ["polynomials", "polynomial operations", "factoring polynomials"],
+      title: "Polynomials",
+      overview: "Polynomials are sums of terms with variables raised to whole-number powers. They can be added, multiplied, factored, and analyzed by degree and leading coefficient.",
+      keyIdeas: ["Like terms have the same variable powers and can be combined.", "Degree is the highest exponent in a one-variable polynomial.", "Factoring rewrites a polynomial as multiplied pieces."],
+      example: "(x + 2)(x + 3) = x² + 5x + 6 by distribution.",
+      mistake: "Do not combine unlike terms, such as x² and x, just because both contain x.",
+      testCue: "Look for degree, leading coefficient, factor, expand, zeros, or end behavior."
+    },
+    {
+      aliases: ["rational expressions", "rational equations", "fractions with variables"],
+      title: "Rational expressions",
+      overview: "Rational expressions are fractions with polynomials. They follow fraction rules, but variable restrictions matter because denominators cannot be zero.",
+      keyIdeas: ["Factor before canceling; only common factors can cancel.", "State excluded values from denominators.", "Use common denominators to add or subtract rational expressions."],
+      example: "(x² - 9)/(x - 3) simplifies to x + 3, but x cannot equal 3.",
+      mistake: "Do not cancel terms across addition or subtraction; cancel common factors only.",
+      testCue: "Look for variable denominators, excluded values, simplify, complex fractions, or rational equations."
+    },
+    {
+      aliases: ["exponential functions", "exponential growth", "exponential decay"],
+      title: "Exponential functions",
+      overview: "Exponential functions have the variable in the exponent. They model repeated multiplication such as growth, decay, doubling, or halving.",
+      keyIdeas: ["A basic model is y = a · b^x, where a is the initial value and b is the growth or decay factor.", "If b > 1, the function grows; if 0 < b < 1, it decays.", "Equal x-steps multiply y by the same factor."],
+      example: "If a population doubles each hour from 100, the model is P = 100 · 2^t.",
+      mistake: "Do not treat exponential growth as adding the same amount each time; it multiplies.",
+      testCue: "Look for doubles, halves, percent growth/decay, compound interest, or y = a · b^x."
+    },
+    {
+      aliases: ["logarithms", "logs", "log rules", "inverse of exponential"],
+      title: "Logarithms",
+      overview: "A logarithm answers the question: what exponent do I need? Logs are inverses of exponential functions.",
+      keyIdeas: ["log_b(x) = y means b^y = x.", "Log rules come from exponent rules.", "The log input must be positive."],
+      example: "log_2(8) = 3 because 2^3 = 8.",
+      mistake: "Do not take the log of zero or a negative number in real-number algebra.",
+      testCue: "Look for solve for an exponent, log notation, exponential equations, pH, or decibels."
+    },
+    {
+      aliases: ["complex numbers", "imaginary numbers", "i", "complex plane"],
+      title: "Complex numbers",
+      overview: "Complex numbers have a real part and an imaginary part, written a + bi. The imaginary unit i satisfies i² = -1.",
+      keyIdeas: ["Add and subtract complex numbers by combining real parts and imaginary parts.", "Multiplying uses distribution plus i² = -1.", "Complex conjugates help divide complex numbers."],
+      example: "(3 + 2i) + (1 - 5i) = 4 - 3i.",
+      mistake: "Do not treat i² as positive 1; i² equals -1.",
+      testCue: "Look for square roots of negatives, a + bi form, conjugates, or the complex plane."
+    },
+    {
+      aliases: ["trigonometric functions", "trig functions", "sine", "cosine", "tangent"],
+      title: "Trigonometric functions",
+      overview: "Trigonometric functions connect angles to ratios and circular motion. Sine, cosine, and tangent can describe right triangles and points on the unit circle.",
+      keyIdeas: ["In right triangles, SOH-CAH-TOA links sine, cosine, and tangent to side ratios.", "On the unit circle, cosine is the x-coordinate and sine is the y-coordinate.", "Trig functions are periodic, meaning their values repeat."],
+      example: "sin(30°) = 1/2 because in a 30-60-90 triangle the opposite side is half the hypotenuse.",
+      mistake: "Do not forget whether your calculator is in degrees or radians.",
+      testCue: "Look for unit circle, radians, right triangles, periodic graphs, sine, cosine, or tangent."
+    },
+    {
+      aliases: ["trig identities", "trigonometric identities", "pythagorean identity"],
+      title: "Trig identities",
+      overview: "Trig identities are equations involving trig functions that are true for allowed angle values. They help simplify expressions and solve trig equations.",
+      keyIdeas: ["The Pythagorean identity sin²θ + cos²θ = 1 is a core tool.", "Rewrite tanθ as sinθ/cosθ when useful.", "Proving identities means transforming one side until it matches the other."],
+      example: "1 - sin²θ can be rewritten as cos²θ using sin²θ + cos²θ = 1.",
+      mistake: "Do not move terms across an identity proof like solving an equation unless your teacher allows equivalent transformations; show a clear chain.",
+      testCue: "Look for simplify, verify, prove, exact trig values, or trig equations."
+    },
+    {
+      aliases: ["vectors", "vector", "magnitude", "components"],
+      title: "Vectors",
+      overview: "Vectors have magnitude and direction. They can represent displacement, velocity, force, or any quantity where direction matters.",
+      keyIdeas: ["Components split a vector into horizontal and vertical parts.", "Magnitude in 2D uses the Pythagorean theorem.", "Vector addition combines corresponding components."],
+      example: "A vector <3, 4> has magnitude 5 because √(3² + 4²) = 5.",
+      mistake: "Do not add magnitudes only when directions differ; use components.",
+      testCue: "Look for arrows, components, magnitude, direction, dot product, or projection."
+    },
+    {
+      aliases: ["sequences and series", "sequences", "series", "arithmetic sequence", "geometric series"],
+      title: "Sequences and series",
+      overview: "A sequence is an ordered list of numbers, while a series is a sum of sequence terms. Patterns can be arithmetic, geometric, or more complex.",
+      keyIdeas: ["Arithmetic sequences add a common difference.", "Geometric sequences multiply by a common ratio.", "A finite series has a set number of terms; infinite series need convergence checks."],
+      example: "2, 6, 18, 54 is geometric with common ratio 3.",
+      mistake: "Do not use an arithmetic formula on a geometric pattern just because the numbers are increasing.",
+      testCue: "Look for nth term, common difference, common ratio, summation notation, or convergence."
+    },
+    {
+      aliases: ["polar coordinates", "polar", "r theta", "polar graphs"],
+      title: "Polar coordinates",
+      overview: "Polar coordinates locate points by distance from the origin and angle from a reference direction. A point is written as (r, θ).",
+      keyIdeas: ["r tells how far from the pole; θ tells the angle.", "Convert with x = r cosθ and y = r sinθ.", "The same point can have multiple polar names because angles repeat."],
+      example: "The polar point (2, π/2) is two units up from the origin, so it corresponds to (0, 2).",
+      mistake: "Do not assume polar coordinates are unique; adding 2π to the angle can describe the same point.",
+      testCue: "Look for r, θ, polar graph, convert to rectangular, or rose/limacon/cardioid curves."
     },
     {
       aliases: ["limits", "limit", "continuity"],
@@ -318,6 +498,87 @@ const EXPLANATION_LIBRARY = {
       testCue: "Expect tangent lines, velocity, rates, increasing/decreasing intervals, and optimization."
     },
     {
+      aliases: ["derivative applications", "applications of derivatives", "related rates", "curve sketching"],
+      title: "Derivative applications",
+      overview: "Derivative applications use rates of change to answer real questions about motion, graph behavior, approximation, and optimization.",
+      keyIdeas: ["First derivatives identify increasing/decreasing intervals and critical points.", "Second derivatives describe concavity and can support max/min tests.", "Related rates connect changing quantities using an equation and implicit differentiation."],
+      example: "If revenue R(x) has derivative R′(x), then R′(100) estimates the extra revenue from selling one more item near 100 items.",
+      mistake: "Do not find a derivative and stop; interpret it in the units and context of the problem.",
+      testCue: "Look for maximize, minimize, velocity, acceleration, related rates, marginal, or graph shape."
+    },
+    {
+      aliases: ["intro integrals", "integrals", "antiderivatives", "definite integrals"],
+      title: "Intro integrals",
+      overview: "Integrals accumulate quantities. An indefinite integral finds a family of antiderivatives; a definite integral gives signed accumulation over an interval.",
+      keyIdeas: ["Antiderivatives reverse differentiation.", "A definite integral can represent area under a curve or total change.", "The Fundamental Theorem of Calculus connects derivatives and integrals."],
+      example: "∫ 2x dx = x² + C because the derivative of x² is 2x.",
+      mistake: "Do not forget + C on indefinite integrals.",
+      testCue: "Look for area under curve, total change, antiderivative, ∫ notation, or accumulation."
+    },
+    {
+      aliases: ["optimization", "max min", "maximize", "minimize"],
+      title: "Optimization",
+      overview: "Optimization uses derivatives to find the maximum or minimum value of a quantity under given constraints.",
+      keyIdeas: ["Define the quantity to optimize before differentiating.", "Use constraints to rewrite the quantity in one variable when possible.", "Critical points and endpoints are candidates for absolute maxima or minima."],
+      example: "To maximize area with fixed perimeter, write area in terms of one side length, differentiate, set the derivative to zero, then check candidates.",
+      mistake: "Do not ignore endpoints or domain restrictions; the best answer must be allowed by the problem.",
+      testCue: "Look for greatest, least, maximize, minimize, optimal, cost, area, volume, or constraints."
+    },
+    {
+      aliases: ["integration techniques", "u substitution", "integration by parts", "partial fractions"],
+      title: "Integration techniques",
+      overview: "Integration techniques are strategies for finding antiderivatives when basic reverse power rules are not enough.",
+      keyIdeas: ["u-substitution reverses the chain rule.", "Integration by parts reverses the product rule.", "Partial fractions break rational functions into simpler pieces."],
+      example: "For ∫ 2x cos(x²) dx, let u = x² so du = 2x dx, giving ∫ cos(u) du.",
+      mistake: "Do not choose a method mechanically; look for the derivative of an inside function, products, or rational factors.",
+      testCue: "Look for substitution patterns, products, rational functions, trig powers, or tables of methods."
+    },
+    {
+      aliases: ["applications of integrals", "integral applications", "area between curves", "volume by shells", "volume by washers"],
+      title: "Applications of integrals",
+      overview: "Applications of integrals use accumulation to compute area, volume, average value, work, and other totals.",
+      keyIdeas: ["Area between curves uses top minus bottom or right minus left.", "Washer and shell methods compute volumes of solids of revolution.", "Units help identify what the integral is accumulating."],
+      example: "The area between y = x and y = x² from 0 to 1 is ∫₀¹ (x - x²) dx.",
+      mistake: "Do not integrate bottom minus top for area unless you want a negative warning from Kiwi.",
+      testCue: "Look for area between curves, volume, work, average value, density, or total amount."
+    },
+    {
+      aliases: ["parametric equations", "parametric curves", "x t y t"],
+      title: "Parametric equations",
+      overview: "Parametric equations describe x and y separately as functions of a parameter, often time. They are useful for motion and curves that are not simple functions y = f(x).",
+      keyIdeas: ["The parameter links x(t) and y(t).", "Velocity components come from dx/dt and dy/dt.", "You can sometimes eliminate the parameter to get a rectangular equation."],
+      example: "x = t and y = t² traces the parabola y = x² as t changes.",
+      mistake: "Do not treat t like x unless you have converted correctly; it controls both coordinates.",
+      testCue: "Look for x(t), y(t), dy/dx from derivatives, motion, orientation, or eliminating t."
+    },
+    {
+      aliases: ["polar integrals", "polar area", "area in polar"],
+      title: "Polar integrals",
+      overview: "Polar integrals accumulate area or length for curves described by r as a function of θ. The polar area formula includes 1/2 r².",
+      keyIdeas: ["Polar area uses A = 1/2 ∫ r² dθ.", "Bounds are angle values, not x-values.", "Graphing the polar curve helps avoid integrating the wrong loop."],
+      example: "The area swept by r = 2 from θ = 0 to π/2 is 1/2 ∫₀^(π/2) 4 dθ = π.",
+      mistake: "Do not use rectangular area formulas without converting; polar slices are sectors.",
+      testCue: "Look for r(θ), rose curves, loops, cardioids, sector area, or polar bounds."
+    },
+    {
+      aliases: ["vectors in space", "3d vectors", "space vectors", "planes and lines"],
+      title: "Vectors in space",
+      overview: "Vectors in space extend vector ideas to three dimensions. They describe points, directions, lines, planes, motion, and geometry in 3D.",
+      keyIdeas: ["A 3D vector has components like <a, b, c>.", "Dot products measure alignment; cross products produce a perpendicular vector.", "Lines and planes can be written with points and direction or normal vectors."],
+      example: "The vector <1, 2, 2> has magnitude √(1² + 2² + 2²) = 3.",
+      mistake: "Do not use 2D formulas and forget the z-component.",
+      testCue: "Look for 3D coordinates, dot product, cross product, normal vector, line, plane, or distance."
+    },
+    {
+      aliases: ["partial derivatives", "partials", "multivariable derivatives"],
+      title: "Partial derivatives",
+      overview: "Partial derivatives measure how a multivariable function changes with respect to one variable while holding the others constant.",
+      keyIdeas: ["For f_x, treat y and other variables as constants.", "Partial derivatives help describe slopes, tangent planes, and gradients.", "The gradient points in the direction of steepest increase."],
+      example: "If f(x, y) = x²y + y³, then f_x = 2xy and f_y = x² + 3y².",
+      mistake: "Do not differentiate every variable at once; each partial has a chosen variable.",
+      testCue: "Look for f_x, f_y, tangent planes, gradient, level curves, or multivariable rates."
+    },
+    {
       aliases: ["multiple integrals", "double integrals", "triple integrals"],
       title: "Multiple integrals",
       overview: "Multiple integrals add up a quantity over a two-dimensional region or three-dimensional solid. A double integral accumulates over area; a triple integral accumulates over volume.",
@@ -325,6 +586,24 @@ const EXPLANATION_LIBRARY = {
       example: "A double integral of 1 over a region gives the region's area; a double integral of density over a plate gives mass.",
       mistake: "Do not choose bounds before understanding the shape. Sketch first, integrate second. Kiwi insists.",
       testCue: "Look for region R, bounds, dA/dV, changing order, volume, mass, or density."
+    },
+    {
+      aliases: ["line integrals", "line integral", "vector fields", "work integral"],
+      title: "Line integrals",
+      overview: "Line integrals accumulate a scalar or vector-field quantity along a curve. They can measure work, circulation, mass along a wire, or flow along a path.",
+      keyIdeas: ["Parameterize the curve before integrating.", "Scalar line integrals use arc length; vector line integrals use the field dotted with the motion direction.", "Orientation matters for vector line integrals."],
+      example: "Work done by force field F along path C is ∫_C F · dr.",
+      mistake: "Do not ignore direction when integrating a vector field; reversing the path can change the sign.",
+      testCue: "Look for path C, vector field F, work, circulation, parameterization, or ∫_C notation."
+    },
+    {
+      aliases: ["surface integrals", "surface integral", "flux", "surface area integrals"],
+      title: "Surface integrals",
+      overview: "Surface integrals accumulate quantities over curved surfaces. For vector fields, they often measure flux passing through a surface.",
+      keyIdeas: ["Describe or parameterize the surface before integrating.", "Flux depends on the field, the surface, and the chosen normal direction.", "Surface area integrals add tiny surface patches dS."],
+      example: "Flux through a surface measures how much of a vector field passes through it, like fluid through a net.",
+      mistake: "Do not forget orientation for flux problems; inward and outward normals can change the sign.",
+      testCue: "Look for surface S, flux, normal vector, dS, parameterized surfaces, or divergence/Stokes connections."
     }
   ],
   psychology: [
@@ -510,10 +789,10 @@ function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, 
 }
 
 const PRACTICE_LIBRARY = {
-  stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nProblem 1\nBalanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form?\n\nProblem 2\nBalanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form?\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\n1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\n2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
-  molarity: `Kiwi-generated practice: Molarity\n\nProblem 1\nYou dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity?\n\nProblem 2\nHow many moles of glucose are in 250 mL of a 0.400 M glucose solution?\n\nAnswer key\n1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\n2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
-  "cell membranes": `Kiwi-generated practice: Cell membranes\n\nProblem 1\nA cell is placed in a very salty solution. Predict the direction water moves and explain why.\n\nProblem 2\nWhy can oxygen cross the phospholipid bilayer more easily than sodium ions?\n\nAnswer key\n1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\n2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
-  derivatives: `Kiwi-generated practice: Derivatives\n\nProblem 1\nFind f′(x) if f(x) = 4x^3 - 5x + 2.\n\nProblem 2\nIf s(t) = t^2 + 3t, what is the velocity at t = 4?\n\nAnswer key\n1. f′(x) = 12x^2 - 5.\n2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
+  stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nConceptual questions\n1. Why must a stoichiometry problem start with a balanced chemical equation?\n2. What is the difference between a coefficient and a subscript?\n\nFree response questions\n1. Balanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form? Show the full grams → moles → mole ratio → grams path.\n2. Balanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form? Explain which mole ratio you used.\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\nConceptual 1. The balanced equation gives the mole ratios; without it, the recipe is wrong.\nConceptual 2. Coefficients compare amounts of substances in a reaction; subscripts count atoms inside one formula.\nFree response 1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\nFree response 2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
+  molarity: `Kiwi-generated practice: Molarity\n\nConceptual questions\n1. What does molarity measure in a solution?\n2. Why does volume usually need to be converted from mL to L before calculating molarity?\n\nFree response questions\n1. You dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity?\n2. How many moles of glucose are in 250 mL of a 0.400 M glucose solution? Show the liter conversion.\n\nAnswer key\nConceptual 1. Molarity is moles of solute per liter of solution.\nConceptual 2. Molarity's unit is mol/L, so mL must become L to match the formula.\nFree response 1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\nFree response 2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
+  "cell membranes": `Kiwi-generated practice: Cell membranes\n\nConceptual questions\n1. What does selectively permeable mean?\n2. Why do ions usually need transport proteins to cross a membrane?\n\nFree response questions\n1. A cell is placed in a very salty solution. Predict the direction water moves and explain why.\n2. Compare oxygen crossing the phospholipid bilayer with sodium ions crossing it. Use membrane structure in your answer.\n\nAnswer key\nConceptual 1. Some substances cross easily, while others are blocked or need help.\nConceptual 2. Ions are charged, so the hydrophobic membrane interior repels them unless a protein channel or pump helps.\nFree response 1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\nFree response 2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
+  derivatives: `Kiwi-generated practice: Derivatives\n\nConceptual questions\n1. What does a derivative measure at one point?\n2. How is a derivative different from an average rate of change?\n\nFree response questions\n1. Find f′(x) if f(x) = 4x^3 - 5x + 2.\n2. If s(t) = t^2 + 3t, what is the velocity at t = 4? Explain why velocity is a derivative.\n\nAnswer key\nConceptual 1. A derivative measures instantaneous rate of change, or tangent slope.\nConceptual 2. Average rate uses an interval; a derivative describes the rate at a single instant.\nFree response 1. f′(x) = 12x^2 - 5.\nFree response 2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
 };
 
 function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
@@ -530,7 +809,7 @@ function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
   const anchor = explanation?.title || cleanTopic;
   const keyIdea = explanation?.keyIdeas?.[0] || `Explain the most important rule, cause, structure, or pattern in ${cleanTopic}.`;
   const example = explanation?.example || `Create a small example where ${cleanTopic} changes the answer or interpretation.`;
-  return `Kiwi-generated practice: ${anchor}\n\nProblem 1\nExplain ${anchor} in your own words, then name the one clue that tells you this topic is being tested.\n\nProblem 2\nApply this idea: ${example}\n\nProblem 3\nCommon mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it.\n\nAnswer key\n1. Strong answer includes this core idea: ${keyIdea}\n2. Strong answer connects the example back to the rule or concept instead of only naming the topic.\n3. Strong answer identifies the misconception and fixes the reasoning.\n\nKiwi check: this is ${subject.label} practice generated for you — no prompt required.`;
+  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.`;
 }
 
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
@@ -704,7 +983,7 @@ function setupApp() {
   function openStudyMode(shouldMove = true) {
     const subject = getSubject(state.activeSubject);
     renderActiveSubject();
-    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” No prompt required — Kiwi brought the lesson plan.`;
+    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” Practice now includes conceptual and free-response questions. No prompt required — Kiwi brought the lesson plan.`;
     els.bubble.textContent = `${subject.label} study mode opened. Tiny paws deployed.`;
     if (shouldMove) moveIntoStudyMode();
   }
