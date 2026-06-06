@@ -31,6 +31,22 @@ function testStudyResponse() {
   assert.match(response, /units/i);
 }
 
+function testExplainGivesActualTopicTeaching() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "stoichiometry",
+    notes: "grams to moles",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Stoichiometry is/i);
+  assert.match(response, /balanced chemical equation/i);
+  assert.match(response, /mole ratio/i);
+  assert.match(response, /grams → moles → mole ratio → moles → grams/i);
+  assert.doesNotMatch(response, /Start with the main idea in one sentence/);
+}
+
 function testMathFallbackTopic() {
   const state = { ...DEFAULT_STATE, activeMathLevel: "Calculus 3" };
   assert.equal(normalizeTopic("", "math", state), "Calculus 3");
@@ -61,5 +77,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /Study mode is open/);
 }
 
-[testSubjectLibrary, testStudyResponse, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
