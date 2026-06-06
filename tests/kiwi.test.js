@@ -5,6 +5,7 @@ const {
   SUBJECTS,
   DEFAULT_STATE,
   buildStudyResponse,
+  buildPracticeProblem,
   buildWeakTopics,
   upsertTopic,
   normalizeTopic,
@@ -47,6 +48,33 @@ function testExplainGivesActualTopicTeaching() {
   assert.doesNotMatch(response, /Start with the main idea in one sentence/);
 }
 
+function testBlankTopicUsesBuiltInLesson() {
+  const response = buildStudyResponse({
+    subjectKey: "biology",
+    action: "Explain",
+    topic: "",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Cell membranes/i);
+  assert.match(response, /phospholipid bilayer/i);
+  assert.doesNotMatch(response, /Add a topic/i);
+}
+
+function testPracticeProblemIsGeneratedByKiwi() {
+  const response = buildPracticeProblem({
+    subjectKey: "chemistry",
+    topic: "stoichiometry",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Kiwi-generated practice/i);
+  assert.match(response, /2 H2 \+ O2 → 2 H2O/);
+  assert.match(response, /How many grams of H2O/i);
+  assert.match(response, /Answer key/i);
+  assert.doesNotMatch(response, /Identify what is given/);
+}
+
 function testMathFallbackTopic() {
   const state = { ...DEFAULT_STATE, activeMathLevel: "Calculus 3" };
   assert.equal(normalizeTopic("", "math", state), "Calculus 3");
@@ -72,10 +100,14 @@ function testStudyModeEntryScaffold() {
   const app = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
   assert.match(html, /id="study-panel"/);
   assert.match(html, /tabindex="-1"/);
+  assert.match(html, /id="topic-library"/);
+  assert.match(html, /id="teach-topic"/);
+  assert.match(html, /id="practice-topic"/);
   assert.match(app, /Open study mode/);
   assert.match(app, /scrollIntoView/);
   assert.match(app, /Study mode is open/);
+  assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

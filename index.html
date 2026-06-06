@@ -44,13 +44,26 @@
 
         <div class="math-levels hidden" id="math-levels" aria-label="Math pathway levels"></div>
 
+        <div class="topic-picker" aria-labelledby="topic-picker-title">
+          <div>
+            <p class="eyebrow" id="topic-picker-title">Built-in Lessons</p>
+            <p class="topic-picker-copy">Pick one of Kiwi's ready-made topics, then press Teach or Practice. Typing your own prompt is optional.</p>
+          </div>
+          <div class="topic-library" id="topic-library"></div>
+        </div>
+
+        <div class="lesson-controls" aria-label="Quick lesson controls">
+          <button class="lesson-button" id="teach-topic" type="button">Teach this topic</button>
+          <button class="lesson-button practice" id="practice-topic" type="button">Give me practice problems</button>
+        </div>
+
         <div class="study-layout">
           <form class="study-form" id="study-form">
-            <label for="topic-input">Topic</label>
-            <input id="topic-input" name="topic" type="text" placeholder="Example: cell membranes, stoichiometry, derivatives..." />
+            <label for="topic-input">Custom topic or prompt <span class="optional-label">optional</span></label>
+            <input id="topic-input" name="topic" type="text" placeholder="Optional: type a different topic, or leave blank and use Kiwi's topic buttons." />
 
-            <label for="notes-input">Notes, question, or homework prompt</label>
-            <textarea id="notes-input" name="notes" rows="7" placeholder="Paste notes or type what you want Kiwi to help with..."></textarea>
+            <label for="notes-input">Notes, question, or homework prompt <span class="optional-label">optional</span></label>
+            <textarea id="notes-input" name="notes" rows="7" placeholder="Optional: paste notes if you want Kiwi to focus the lesson more specifically..."></textarea>
 
             <fieldset class="confidence-field">
               <legend>Confidence</legend>

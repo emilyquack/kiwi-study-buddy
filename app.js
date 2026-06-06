@@ -77,6 +77,7 @@ const SUBJECTS = {
 const DEFAULT_STATE = {
   activeSubject: "biology",
   activeMathLevel: "Algebra 1",
+  activeTopic: "cell membranes",
   savedTopics: []
 };
 
@@ -482,6 +483,30 @@ function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, 
   return `${explanation.title}${level}: actual Kiwi explanation\n\n${explanation.overview}\n\nKey ideas:\n${explanation.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${explanation.example}\n\nCommon mistake:\n${explanation.mistake}\n\nHow to recognize it on a test:\n${explanation.testCue}${noteFocus}\n\n${confidenceLine}\n${noteHint}`;
 }
 
+const PRACTICE_LIBRARY = {
+  stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nProblem 1\nBalanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form?\n\nProblem 2\nBalanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form?\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\n1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\n2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
+  molarity: `Kiwi-generated practice: Molarity\n\nProblem 1\nYou dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity?\n\nProblem 2\nHow many moles of glucose are in 250 mL of a 0.400 M glucose solution?\n\nAnswer key\n1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\n2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
+  "cell membranes": `Kiwi-generated practice: Cell membranes\n\nProblem 1\nA cell is placed in a very salty solution. Predict the direction water moves and explain why.\n\nProblem 2\nWhy can oxygen cross the phospholipid bilayer more easily than sodium ions?\n\nAnswer key\n1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\n2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
+  derivatives: `Kiwi-generated practice: Derivatives\n\nProblem 1\nFind f′(x) if f(x) = 4x^3 - 5x + 2.\n\nProblem 2\nIf s(t) = t^2 + 3t, what is the velocity at t = 4?\n\nAnswer key\n1. f′(x) = 12x^2 - 5.\n2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
+};
+
+function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
+  const subject = getSubject(subjectKey);
+  const cleanTopic = normalizeTopic(topic || state.activeTopic, subjectKey, state);
+  const normalizedTopic = normalizeForLookup(cleanTopic);
+  const directPractice = Object.entries(PRACTICE_LIBRARY).find(([key]) => {
+    const normalizedKey = normalizeForLookup(key);
+    return normalizedTopic === normalizedKey || normalizedTopic.includes(normalizedKey) || normalizedKey.includes(normalizedTopic);
+  });
+  if (directPractice) return directPractice[1];
+
+  const explanation = findExplanation(subjectKey, cleanTopic);
+  const anchor = explanation?.title || cleanTopic;
+  const keyIdea = explanation?.keyIdeas?.[0] || `Explain the most important rule, cause, structure, or pattern in ${cleanTopic}.`;
+  const example = explanation?.example || `Create a small example where ${cleanTopic} changes the answer or interpretation.`;
+  return `Kiwi-generated practice: ${anchor}\n\nProblem 1\nExplain ${anchor} in your own words, then name the one clue that tells you this topic is being tested.\n\nProblem 2\nApply this idea: ${example}\n\nProblem 3\nCommon mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it.\n\nAnswer key\n1. Strong answer includes this core idea: ${keyIdea}\n2. Strong answer connects the example back to the rule or concept instead of only naming the topic.\n3. Strong answer identifies the misconception and fixes the reasoning.\n\nKiwi check: this is ${subject.label} practice generated for you — no prompt required.`;
+}
+
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic, subjectKey, state);
@@ -493,7 +518,7 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
     "Explain": buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state }),
     "Quiz Me": `Quick Kiwi quiz for ${cleanTopic}${level}:\n\nQ1. What is the core definition or rule?\nQ2. What is one common trap students make here?\nQ3. Apply it to a tiny example from your notes.\n\nAnswer out loud first. Kiwi does not accept telepathic studying.` ,
     "Flashcards": `Flashcard starter deck for ${cleanTopic}${level}:\n\n• Term → definition\n• Process/formula → when to use it\n• Common mistake → how to avoid it\n• Example → final answer or conclusion\n\nPaw stamp goal: make 4 cards now, not 40 cards never.` ,
-    "Practice Problem": `Practice problem mode for ${cleanTopic}${level}:\n\n1. Identify what is given.\n2. Identify what is asked.\n3. Choose the rule/formula/concept.\n4. Solve or explain one step at a time.\n5. Check units, logic, or evidence.\n\nKiwi note: tiny steps prevent academic soup.` ,
+    "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, state }),
     "Study Guide": `Mini study guide for ${cleanTopic}${level}:\n\n• Must-know ideas\n• Key vocabulary/formulas\n• One worked example\n• Two quiz questions\n• One common misconception\n• Confidence rating after review\n\nStart here, then mark your confidence again.` ,
     "Summarize Notes": `Summary plan for ${cleanTopic}${level}:\n\n• Big idea: write it in one sentence.\n• Details: keep only test-relevant facts.\n• Connections: link it to the previous topic.\n• Check: ask one question your teacher might ask.\n\n${noteHint}`,
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,
@@ -540,6 +565,9 @@ function setupApp() {
     kicker: document.querySelector("#subject-kicker"),
     accessory: document.querySelector("#accessory-pill"),
     mathLevels: document.querySelector("#math-levels"),
+    topicLibrary: document.querySelector("#topic-library"),
+    teachTopic: document.querySelector("#teach-topic"),
+    practiceTopic: document.querySelector("#practice-topic"),
     actions: document.querySelector("#study-actions"),
     output: document.querySelector("#study-output"),
     bubble: document.querySelector("#kiwi-bubble"),
@@ -555,6 +583,33 @@ function setupApp() {
 
   function getConfidence() {
     return document.querySelector('input[name="confidence"]:checked')?.value || "low";
+  }
+
+  function ensureActiveTopic() {
+    const subject = getSubject(state.activeSubject);
+    if (!state.activeTopic || !subject.topics.includes(state.activeTopic)) {
+      state.activeTopic = subject.topics[0];
+    }
+  }
+
+  function getCurrentTopic() {
+    const customTopic = els.topic.value.trim();
+    if (customTopic) return customTopic;
+    ensureActiveTopic();
+    return state.activeTopic;
+  }
+
+  function runLesson(action) {
+    const response = buildStudyResponse({
+      subjectKey: state.activeSubject,
+      action,
+      topic: getCurrentTopic(),
+      notes: els.notes.value,
+      confidence: getConfidence(),
+      state
+    });
+    els.output.textContent = response;
+    els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : "Teaching mode. Kiwi has seized the chalkboard.";
   }
 
   function renderSubjects() {
@@ -577,6 +632,16 @@ function setupApp() {
     }
     els.mathLevels.classList.remove("hidden");
     els.mathLevels.innerHTML = subject.levels.map(level => `<button type="button" class="math-level ${level === state.activeMathLevel ? "active" : ""}" data-level="${level}">${level}</button>`).join("");
+  }
+
+  function renderTopicLibrary() {
+    const subject = getSubject(state.activeSubject);
+    ensureActiveTopic();
+    els.topicLibrary.innerHTML = subject.topics.map(topic => `
+      <button type="button" class="topic-chip ${topic === state.activeTopic ? "active" : ""}" data-topic="${topic}" aria-pressed="${topic === state.activeTopic}">
+        ${topic}
+      </button>
+    `).join("");
   }
 
   function renderActions() {
@@ -613,19 +678,21 @@ function setupApp() {
   function openStudyMode(shouldMove = true) {
     const subject = getSubject(state.activeSubject);
     renderActiveSubject();
-    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Add a topic, paste notes if you have them, then choose a study action. Kiwi is ready.`;
+    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” No prompt required — Kiwi brought the lesson plan.`;
     els.bubble.textContent = `${subject.label} study mode opened. Tiny paws deployed.`;
     if (shouldMove) moveIntoStudyMode();
   }
 
   function renderActiveSubject() {
     const subject = getSubject(state.activeSubject);
+    ensureActiveTopic();
     els.title.textContent = subject.label;
     els.kicker.textContent = state.activeSubject === "math" ? `Current Subject · ${state.activeMathLevel}` : "Current Subject";
     els.accessory.textContent = subject.accessory;
     els.bubble.textContent = subject.voice;
     renderSubjects();
     renderMathLevels();
+    renderTopicLibrary();
     renderActions();
     renderWeakBoard();
   }
@@ -634,6 +701,8 @@ function setupApp() {
     const card = event.target.closest("[data-subject]");
     if (!card) return;
     state.activeSubject = card.dataset.subject;
+    state.activeTopic = getSubject(state.activeSubject).topics[0];
+    els.topic.value = "";
     saveState(state);
     openStudyMode(true);
   });
@@ -646,13 +715,34 @@ function setupApp() {
     renderActiveSubject();
   });
 
+  els.topicLibrary.addEventListener("click", event => {
+    const button = event.target.closest("[data-topic]");
+    if (!button) return;
+    state.activeTopic = button.dataset.topic;
+    els.topic.value = "";
+    saveState(state);
+    renderTopicLibrary();
+    els.output.textContent = buildStudyResponse({
+      subjectKey: state.activeSubject,
+      action: "Explain",
+      topic: state.activeTopic,
+      notes: els.notes.value,
+      confidence: getConfidence(),
+      state
+    });
+    els.bubble.textContent = `${state.activeTopic} selected. Kiwi opened the mini lesson.`;
+  });
+
+  els.teachTopic.addEventListener("click", () => runLesson("Explain"));
+  els.practiceTopic.addEventListener("click", () => runLesson("Practice Problem"));
+
   els.actions.addEventListener("click", event => {
     const button = event.target.closest("[data-action]");
     if (!button) return;
     const response = buildStudyResponse({
       subjectKey: state.activeSubject,
       action: button.dataset.action,
-      topic: els.topic.value,
+      topic: getCurrentTopic(),
       notes: els.notes.value,
       confidence: getConfidence(),
       state
@@ -662,7 +752,7 @@ function setupApp() {
   });
 
   els.saveTopic.addEventListener("click", () => {
-    state = upsertTopic(state, { subjectKey: state.activeSubject, topic: els.topic.value, confidence: getConfidence() });
+    state = upsertTopic(state, { subjectKey: state.activeSubject, topic: getCurrentTopic(), confidence: getConfidence() });
     saveState(state);
     renderWeakBoard();
     els.bubble.textContent = "Topic saved. Paw stamp awarded.";
@@ -675,6 +765,7 @@ function setupApp() {
       return;
     }
     state.activeSubject = weak.subjectKey;
+    state.activeTopic = weak.topic;
     els.topic.value = weak.topic;
     saveState(state);
     renderActiveSubject();
@@ -708,5 +799,5 @@ if (typeof document !== "undefined") {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildWeakTopics, upsertTopic, normalizeTopic, loadState };
+  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildWeakTopics, upsertTopic, normalizeTopic, loadState };
 }
