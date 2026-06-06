@@ -9,6 +9,7 @@ const {
   buildWeakTopics,
   upsertTopic,
   normalizeTopic,
+  getTopicsForSubject,
   loadState
 } = require("../app.js");
 
@@ -75,9 +76,57 @@ function testPracticeProblemIsGeneratedByKiwi() {
   assert.doesNotMatch(response, /Identify what is given/);
 }
 
+function testCustomCommonTopicGetsRealTeaching() {
+  const response = buildStudyResponse({
+    subjectKey: "biology",
+    action: "Explain",
+    topic: "photosynthesis",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Photosynthesis is/i);
+  assert.match(response, /light energy/i);
+  assert.match(response, /glucose/i);
+  assert.doesNotMatch(response, /topic you can understand by asking/i);
+}
+
+function testUnknownCustomTopicIsHonest() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /not in Kiwi's built-in lesson library yet/i);
+  assert.match(response, /banana orbital sparkles/i);
+  assert.doesNotMatch(response, /actual Kiwi explanation/i);
+}
+
+function testMathTopicsAreLevelSpecific() {
+  const algebraTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Algebra 1", activeTopic: "linear equations" });
+  assert.deepEqual(algebraTopics, ["linear equations", "systems of equations", "inequalities", "functions", "exponents"]);
+  assert(!algebraTopics.includes("limits"));
+  assert(!algebraTopics.includes("derivatives"));
+  assert(!algebraTopics.includes("multiple integrals"));
+
+  const calculusOneTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Calculus 1", activeTopic: "limits" });
+  assert(calculusOneTopics.includes("limits"));
+  assert(calculusOneTopics.includes("derivatives"));
+  assert(!calculusOneTopics.includes("multiple integrals"));
+
+  const calculusThreeTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Calculus 3", activeTopic: "partial derivatives" });
+  assert(calculusThreeTopics.includes("partial derivatives"));
+  assert(calculusThreeTopics.includes("multiple integrals"));
+}
+
 function testMathFallbackTopic() {
-  const state = { ...DEFAULT_STATE, activeMathLevel: "Calculus 3" };
-  assert.equal(normalizeTopic("", "math", state), "Calculus 3");
+  const algebraState = { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: "Algebra 1", activeTopic: "linear equations" };
+  assert.equal(normalizeTopic("", "math", algebraState), "linear equations");
+  const calcState = { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: "Calculus 3", activeTopic: "partial derivatives" };
+  assert.equal(normalizeTopic("", "math", calcState), "partial derivatives");
 }
 
 function testWeakTopicBoard() {
@@ -109,5 +158,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

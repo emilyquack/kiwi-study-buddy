@@ -37,7 +37,16 @@ const SUBJECTS = {
     color: "#FFF0B8",
     accessory: "📐 Calculator hat equipped",
     line: "A full pathway from Algebra 1 through Calculus 3.",
-    topics: ["linear equations", "functions", "limits", "derivatives", "multiple integrals"],
+    topics: ["linear equations", "systems of equations", "inequalities", "functions", "exponents"],
+    topicsByLevel: {
+      "Algebra 1": ["linear equations", "systems of equations", "inequalities", "functions", "exponents"],
+      "Geometry": ["angles", "triangles", "congruence", "similarity", "circles", "area and volume"],
+      "Algebra 2": ["quadratics", "polynomials", "rational expressions", "exponential functions", "logarithms", "complex numbers"],
+      "Precalculus": ["trigonometric functions", "trig identities", "vectors", "sequences and series", "polar coordinates"],
+      "Calculus 1": ["limits", "derivatives", "derivative applications", "intro integrals", "optimization"],
+      "Calculus 2": ["integration techniques", "applications of integrals", "sequences and series", "parametric equations", "polar integrals"],
+      "Calculus 3": ["vectors in space", "partial derivatives", "multiple integrals", "line integrals", "surface integrals"]
+    },
     tools: ["Explain", "Step-by-Step", "Practice Problem", "Mistake Check", "Flashcards", "Study Guide"],
     voice: "Math mode. Numbers have formed a small rebellion.",
     levels: ["Algebra 1", "Geometry", "Algebra 2", "Precalculus", "Calculus 1", "Calculus 2", "Calculus 3"]
@@ -104,12 +113,20 @@ function getSubject(subjectKey) {
   return SUBJECTS[subjectKey] || SUBJECTS.biology;
 }
 
-function normalizeTopic(topic, subjectKey, state = DEFAULT_STATE) {
+function getTopicsForSubject(subjectKey, state = DEFAULT_STATE) {
   const subject = getSubject(subjectKey);
+  if (subjectKey === "math" && subject.topicsByLevel) {
+    return subject.topicsByLevel[state.activeMathLevel] || subject.topicsByLevel[subject.levels[0]];
+  }
+  return subject.topics;
+}
+
+function normalizeTopic(topic, subjectKey, state = DEFAULT_STATE) {
   const cleanTopic = (topic || "").trim();
   if (cleanTopic) return cleanTopic;
-  if (subjectKey === "math") return state.activeMathLevel || "Algebra 1";
-  return subject.topics[0];
+  const topics = getTopicsForSubject(subjectKey, state);
+  if (state.activeTopic && topics.includes(state.activeTopic)) return state.activeTopic;
+  return topics[0];
 }
 
 const EXPLANATION_LIBRARY = {
@@ -122,6 +139,15 @@ const EXPLANATION_LIBRARY = {
       example: "If a cell is placed in salty water, water may leave the cell by osmosis because the outside has more dissolved particles.",
       mistake: "Do not say the membrane is a solid wall. It is fluid, moving, and protein-studded — more like a tiny security gate than a brick fence.",
       testCue: "Look for words like selectively permeable, diffusion, osmosis, channels, pumps, or concentration gradient."
+    },
+    {
+      aliases: ["photosynthesis", "chloroplasts", "light reactions", "calvin cycle"],
+      title: "Photosynthesis",
+      overview: "Photosynthesis is the process plants, algae, and some bacteria use to turn light energy into chemical energy stored in glucose. It mostly happens in chloroplasts: the light reactions capture energy, and the Calvin cycle uses that energy to build sugar from carbon dioxide.",
+      keyIdeas: ["The overall inputs are carbon dioxide, water, and light; the outputs are glucose and oxygen.", "Light reactions happen in the thylakoid membranes and produce ATP, NADPH, and oxygen.", "The Calvin cycle happens in the stroma and uses CO2, ATP, and NADPH to build sugar."],
+      example: "A plant leaf takes in CO2 through stomata, absorbs light with chlorophyll, splits water during the light reactions, releases O2, then uses the captured energy to make glucose.",
+      mistake: "Do not say photosynthesis is just plants 'breathing.' It is energy conversion and sugar-building; cellular respiration is the process that breaks sugar down for usable ATP.",
+      testCue: "Look for chloroplasts, chlorophyll, light reactions, Calvin cycle, CO2, H2O, O2, glucose, ATP, or NADPH."
     },
     {
       aliases: ["genetics", "genes", "inheritance", "punnett squares"],
@@ -459,17 +485,17 @@ function findExplanation(subjectKey, cleanTopic) {
 
 function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes }) {
   const subjectFrames = {
-    biology: ["what structure or process is involved", "how it helps living systems survive or function", "what changes when conditions change"],
-    chemistry: ["what particles or substances are changing", "what quantities, units, or ratios connect them", "what evidence shows the reaction or property"],
-    physics: ["what object or system you are analyzing", "which variables describe it", "what law, graph, or equation connects those variables"],
-    math: ["what the problem is asking you to find", "which rule or definition applies", "how each step changes the expression without breaking equality"],
-    psychology: ["what behavior or mental process is being described", "which theory or evidence explains it", "how to distinguish it from a similar concept"],
-    writing: ["what claim or purpose the writing needs", "what evidence supports it", "how the explanation connects back to the prompt"],
-    history: ["what happened", "why it happened in that context", "what changed afterward and why it mattered"]
+    biology: ["the structures or process involved", "how energy, matter, or information moves", "what outcome changes in the living system"],
+    chemistry: ["the particles, bonds, or substances involved", "the units, ratios, or evidence", "what changes during the reaction or property trend"],
+    physics: ["the object or system", "the variables and directions", "the law, graph, or equation that connects them"],
+    math: ["the type of expression, equation, shape, or function", "the rule that fits this class level", "the step that preserves equality or the graph's meaning"],
+    psychology: ["the behavior or mental process", "the theory or evidence", "how it differs from a similar concept"],
+    writing: ["the claim or purpose", "the evidence", "how the analysis connects back to the prompt"],
+    history: ["what happened", "the context and causes", "the effects and historical significance"]
   };
   const frame = subjectFrames[subjectKey] || subjectFrames.biology;
-  const noteFocus = notes && notes.trim() ? `\n\nFrom your notes/question, focus especially on: “${notes.trim().slice(0, 180)}${notes.trim().length > 180 ? "…" : ""}”.` : "";
-  return `Let's actually explain ${cleanTopic}${level} in ${subject.label}.\n\nCore idea: ${cleanTopic} is a ${subject.label.toLowerCase()} topic you can understand by asking: ${frame[0]}, ${frame[1]}, and ${frame[2]}.\n\nBreak it down:\n• First, define the main term in plain language.\n• Next, identify the moving parts: people, variables, evidence, structures, formulas, or causes.\n• Then connect those parts with a because statement: “${cleanTopic} matters because ___.”\n\nExample starter: If a problem or question mentions ${cleanTopic}, Kiwi would first label the key information, then explain how each part affects the next part instead of memorizing loose facts.\n\nCommon mistake: treating ${cleanTopic} like a vocabulary word only. For tests, you usually need to explain how it works, when it applies, and why it matters.${noteFocus}`;
+  const noteFocus = notes && notes.trim() ? `\n\nUsing your notes/question as the anchor: “${notes.trim().slice(0, 180)}${notes.trim().length > 180 ? "…" : ""}”` : "";
+  return `Custom topic: ${cleanTopic}${level}\n\nTiny honesty note: ${cleanTopic} is not in Kiwi's built-in lesson library yet, so I will not pretend this is a full textbook-perfect explanation. Here is the safest study structure for this custom topic.\n\nHow to build the explanation:\n• Define ${cleanTopic} in one plain sentence.\n• Identify ${frame[0]}.\n• Explain ${frame[1]}.\n• Finish with ${frame[2]}.\n\nPractice check:\nWrite: “${cleanTopic} matters because ___.” Then add one example and one common mistake to avoid.\n\nIf you paste notes or a homework question, Kiwi can organize that specific information without guessing.${noteFocus}`;
 }
 
 function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state = DEFAULT_STATE }) {
@@ -586,9 +612,9 @@ function setupApp() {
   }
 
   function ensureActiveTopic() {
-    const subject = getSubject(state.activeSubject);
-    if (!state.activeTopic || !subject.topics.includes(state.activeTopic)) {
-      state.activeTopic = subject.topics[0];
+    const topics = getTopicsForSubject(state.activeSubject, state);
+    if (!state.activeTopic || !topics.includes(state.activeTopic)) {
+      state.activeTopic = topics[0];
     }
   }
 
@@ -635,9 +661,9 @@ function setupApp() {
   }
 
   function renderTopicLibrary() {
-    const subject = getSubject(state.activeSubject);
+    const topics = getTopicsForSubject(state.activeSubject, state);
     ensureActiveTopic();
-    els.topicLibrary.innerHTML = subject.topics.map(topic => `
+    els.topicLibrary.innerHTML = topics.map(topic => `
       <button type="button" class="topic-chip ${topic === state.activeTopic ? "active" : ""}" data-topic="${topic}" aria-pressed="${topic === state.activeTopic}">
         ${topic}
       </button>
@@ -701,7 +727,7 @@ function setupApp() {
     const card = event.target.closest("[data-subject]");
     if (!card) return;
     state.activeSubject = card.dataset.subject;
-    state.activeTopic = getSubject(state.activeSubject).topics[0];
+    state.activeTopic = getTopicsForSubject(state.activeSubject, state)[0];
     els.topic.value = "";
     saveState(state);
     openStudyMode(true);
@@ -711,6 +737,8 @@ function setupApp() {
     const button = event.target.closest("[data-level]");
     if (!button) return;
     state.activeMathLevel = button.dataset.level;
+    state.activeTopic = getTopicsForSubject("math", state)[0];
+    els.topic.value = "";
     saveState(state);
     renderActiveSubject();
   });
@@ -799,5 +827,5 @@ if (typeof document !== "undefined") {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildWeakTopics, upsertTopic, normalizeTopic, loadState };
+  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
 }
