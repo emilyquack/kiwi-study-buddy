@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kiwi the Cat Study Buddy: a cozy pastel subject-first study website." />
+  <title>Kiwi Study Buddy</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero-card" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Pastel Academic Cat Café</p>
+        <h1 id="page-title">Kiwi Study Buddy</h1>
+        <p class="hero-copy">Pick a subject. Kiwi brought emotional support paws, tidy study tools, and a suspicious amount of confidence.</p>
+      </div>
+      <div class="hero-mascot" aria-hidden="true">
+        <span class="sparkle">✦</span>
+        <img src="assets/kiwi-cat.svg" alt="" />
+      </div>
+    </header>
+
+    <main>
+      <section class="subject-section" aria-labelledby="subjects-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Subject Library</p>
+            <h2 id="subjects-title">Choose today's academic beast</h2>
+          </div>
+          <button class="ghost-button" id="reset-demo" type="button">Reset saved demo</button>
+        </div>
+        <div class="subject-grid" id="subject-grid"></div>
+      </section>
+
+      <section class="study-panel" aria-labelledby="study-title">
+        <div class="panel-topline">
+          <div>
+            <p class="eyebrow" id="subject-kicker">Current Subject</p>
+            <h2 id="study-title">General Biology</h2>
+          </div>
+          <div class="accessory-pill" id="accessory-pill">🥽 Tiny lab goggles activated</div>
+        </div>
+
+        <div class="math-levels hidden" id="math-levels" aria-label="Math pathway levels"></div>
+
+        <div class="study-layout">
+          <form class="study-form" id="study-form">
+            <label for="topic-input">Topic</label>
+            <input id="topic-input" name="topic" type="text" placeholder="Example: cell membranes, stoichiometry, derivatives..." />
+
+            <label for="notes-input">Notes, question, or homework prompt</label>
+            <textarea id="notes-input" name="notes" rows="7" placeholder="Paste notes or type what you want Kiwi to help with..."></textarea>
+
+            <fieldset class="confidence-field">
+              <legend>Confidence</legend>
+              <label><input type="radio" name="confidence" value="low" checked /> <span>Tiny panic</span></label>
+              <label><input type="radio" name="confidence" value="okay" /> <span>Somewhat alive</span></label>
+              <label><input type="radio" name="confidence" value="strong" /> <span>Academic goblin power</span></label>
+            </fieldset>
+
+            <div class="study-actions" id="study-actions"></div>
+          </form>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="result-header">
+              <p class="eyebrow">Kiwi says</p>
+              <button id="save-topic" type="button" class="tiny-button">Save topic</button>
+            </div>
+            <div id="study-output" class="study-output">
+              Biology mode. Tiny goggles activated. Choose an action and I shall become academically suspicious.
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="progress-board" aria-labelledby="progress-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Weak Spots</p>
+            <h2 id="progress-title">Sticky-note review board</h2>
+          </div>
+          <button class="ghost-button" id="review-weak" type="button">Review weakest topic</button>
+        </div>
+        <div class="sticky-grid" id="weak-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="kiwi-widget" aria-label="Kiwi companion">
+    <div class="speech-bubble" id="kiwi-bubble">Welcome to Study Mode. I have paws and a plan.</div>
+    <button class="kiwi-button" id="kiwi-button" type="button" aria-label="Ask Kiwi for encouragement">
+      <img src="assets/kiwi-cat.svg" alt="Kiwi the Cat" />
+    </button>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>

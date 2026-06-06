@@ -1,0 +1,18 @@
+{
+  "name": "kiwi-study-buddy",
+  "version": "0.1.0",
+  "private": false,
+  "description": "A cozy pastel subject-first study buddy website starring Kiwi the Cat.",
+  "scripts": {
+    "test": "node tests/kiwi.test.js",
+    "serve": "python3 -m http.server 5173"
+  },
+  "keywords": [
+    "study",
+    "education",
+    "dashboard",
+    "kiwi-the-cat",
+    "static-site"
+  ],
+  "license": "MIT"
+}
