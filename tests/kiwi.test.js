@@ -108,6 +108,25 @@ function testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopi
   });
 }
 
+function testStemFreeResponseIsMathBasedForEveryBuiltInTopic() {
+  const stemKeys = new Set(["chemistry", "physics", "math"]);
+  Object.entries(SUBJECTS).forEach(([subjectKey, subject]) => {
+    if (!stemKeys.has(subjectKey)) return;
+    const items = subjectKey === "math"
+      ? Object.entries(subject.topicsByLevel).flatMap(([level, topics]) => topics.map(topic => ({ topic, label: `${level} ${topic}`, state: { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: level, activeTopic: topic } })))
+      : subject.topics.map(topic => ({ topic, label: `${subject.label} ${topic}`, state: { ...DEFAULT_STATE, activeSubject: subjectKey, activeTopic: topic } }));
+
+    items.forEach(({ topic, label, state }) => {
+      const response = buildPracticeProblem({ subjectKey, topic, state });
+      assert.match(response, /Math-based free response questions/i, `${label} needs math-based free response questions`);
+      assert.match(response, /Show your work/i, `${label} should ask for shown calculations`);
+      assert.match(response, /\d/, `${label} should include concrete numbers`);
+      assert.match(response, /[=+−\-×÷/^]|√|π|mol|M|N|J|m\/s|Ω|%/, `${label} should include mathematical symbols, units, or formulas`);
+      assert.doesNotMatch(response, /full-sentence response:|write a longer explanation/i, `${label} should not use generic written-response prompts for STEM`);
+    });
+  });
+}
+
 function testEveryBuiltInTopicHasActualLessonLibraryEntry() {
   Object.entries(SUBJECTS).forEach(([subjectKey, subject]) => {
     if (subjectKey === "math") {
@@ -224,5 +243,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

@@ -789,26 +789,311 @@ function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, 
 }
 
 const PRACTICE_LIBRARY = {
-  stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nConceptual questions\n1. Why must a stoichiometry problem start with a balanced chemical equation?\n2. What is the difference between a coefficient and a subscript?\n\nFree response questions\n1. Balanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form? Show the full grams → moles → mole ratio → grams path.\n2. Balanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form? Explain which mole ratio you used.\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\nConceptual 1. The balanced equation gives the mole ratios; without it, the recipe is wrong.\nConceptual 2. Coefficients compare amounts of substances in a reaction; subscripts count atoms inside one formula.\nFree response 1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\nFree response 2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
-  molarity: `Kiwi-generated practice: Molarity\n\nConceptual questions\n1. What does molarity measure in a solution?\n2. Why does volume usually need to be converted from mL to L before calculating molarity?\n\nFree response questions\n1. You dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity?\n2. How many moles of glucose are in 250 mL of a 0.400 M glucose solution? Show the liter conversion.\n\nAnswer key\nConceptual 1. Molarity is moles of solute per liter of solution.\nConceptual 2. Molarity's unit is mol/L, so mL must become L to match the formula.\nFree response 1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\nFree response 2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
+  stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nConceptual questions\n1. Why must a stoichiometry problem start with a balanced chemical equation?\n2. What is the difference between a coefficient and a subscript?\n\nMath-based free response questions\n1. Balanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form? Show your work with the full grams → moles → mole ratio → grams path.\n2. Balanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form? Show your work and identify the mole ratio.\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\nConceptual 1. The balanced equation gives the mole ratios; without it, the recipe is wrong.\nConceptual 2. Coefficients compare amounts of substances in a reaction; subscripts count atoms inside one formula.\nFree response 1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\nFree response 2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
+  molarity: `Kiwi-generated practice: Molarity\n\nConceptual questions\n1. What does molarity measure in a solution?\n2. Why does volume usually need to be converted from mL to L before calculating molarity?\n\nMath-based free response questions\n1. You dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity? Show your work.\n2. How many moles of glucose are in 250 mL of a 0.400 M glucose solution? Show your work with the liter conversion.\n\nAnswer key\nConceptual 1. Molarity is moles of solute per liter of solution.\nConceptual 2. Molarity's unit is mol/L, so mL must become L to match the formula.\nFree response 1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\nFree response 2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
   "cell membranes": `Kiwi-generated practice: Cell membranes\n\nConceptual questions\n1. What does selectively permeable mean?\n2. Why do ions usually need transport proteins to cross a membrane?\n\nFree response questions\n1. A cell is placed in a very salty solution. Predict the direction water moves and explain why.\n2. Compare oxygen crossing the phospholipid bilayer with sodium ions crossing it. Use membrane structure in your answer.\n\nAnswer key\nConceptual 1. Some substances cross easily, while others are blocked or need help.\nConceptual 2. Ions are charged, so the hydrophobic membrane interior repels them unless a protein channel or pump helps.\nFree response 1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\nFree response 2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
-  derivatives: `Kiwi-generated practice: Derivatives\n\nConceptual questions\n1. What does a derivative measure at one point?\n2. How is a derivative different from an average rate of change?\n\nFree response questions\n1. Find f′(x) if f(x) = 4x^3 - 5x + 2.\n2. If s(t) = t^2 + 3t, what is the velocity at t = 4? Explain why velocity is a derivative.\n\nAnswer key\nConceptual 1. A derivative measures instantaneous rate of change, or tangent slope.\nConceptual 2. Average rate uses an interval; a derivative describes the rate at a single instant.\nFree response 1. f′(x) = 12x^2 - 5.\nFree response 2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
+  derivatives: `Kiwi-generated practice: Derivatives\n\nConceptual questions\n1. What does a derivative measure at one point?\n2. How is a derivative different from an average rate of change?\n\nMath-based free response questions\n1. Find f′(x) if f(x) = 4x^3 - 5x + 2. Show your work with the power rule.\n2. If s(t) = t^2 + 3t, what is the velocity at t = 4? Show your work and explain why velocity is a derivative.\n\nAnswer key\nConceptual 1. A derivative measures instantaneous rate of change, or tangent slope.\nConceptual 2. Average rate uses an interval; a derivative describes the rate at a single instant.\nFree response 1. f′(x) = 12x^2 - 5.\nFree response 2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
 };
+
+const STEM_MATH_FREE_RESPONSE_LIBRARY = {
+  "periodic trends": {
+    "q1": "Rank Li, Na, and K from smallest to largest atomic radius using their group positions (periods 2, 3, 4).",
+    "q2": "Which has the higher first ionization energy, Mg (period 3, group 2) or Al (period 3, group 13)? Use effective nuclear charge to justify your choice.",
+    "a1": "Li < Na < K because radius increases down a group as more electron shells are added.",
+    "a2": "Mg is slightly higher than Al in the common intro trend exception because Al's first removed electron is in a higher-energy 3p orbital; the key calculation-style comparison is same period + shielding/orbital reasoning."
+  },
+  "acids and bases": {
+    "q1": "Calculate the pH of a solution with [H+] = 1.0 × 10^-3 M.",
+    "q2": "A 25.0 mL sample of 0.100 M HCl is neutralized by 0.100 M NaOH. What volume of NaOH is needed?",
+    "a1": "pH = -log(1.0 × 10^-3) = 3.00.",
+    "a2": "M1V1 = M2V2 for 1:1 neutralization, so V2 = (0.100 M × 25.0 mL)/(0.100 M) = 25.0 mL NaOH."
+  },
+  "equilibrium": {
+    "q1": "For N2O4(g) ⇌ 2 NO2(g), write Kc if [NO2] = 0.20 M and [N2O4] = 0.50 M, then calculate it.",
+    "q2": "For A ⇌ B with K = 4.0 and Q = 1.0, which direction will the system shift? Use the Q vs. K comparison.",
+    "a1": "Kc = [NO2]^2/[N2O4] = (0.20)^2/0.50 = 0.080.",
+    "a2": "Since Q < K, the reaction shifts right toward products until Q increases to K."
+  },
+  "kinematics": {
+    "q1": "A cart starts from rest and accelerates at 2.0 m/s^2 for 5.0 s. Find its final velocity.",
+    "q2": "A runner moves from x = 3 m to x = 15 m in 4 s. Calculate displacement and average velocity.",
+    "a1": "v = v0 + at = 0 + (2.0)(5.0) = 10 m/s.",
+    "a2": "Δx = 15 - 3 = 12 m; average velocity = Δx/t = 12/4 = 3 m/s."
+  },
+  "forces": {
+    "q1": "A 4.0 kg box has a net force of 20 N to the right. Calculate its acceleration.",
+    "q2": "A 10 kg object rests on a level table. Calculate its weight using g = 9.8 m/s^2 and name the normal force if it is not accelerating vertically.",
+    "a1": "a = Fnet/m = 20 N / 4.0 kg = 5.0 m/s^2 to the right.",
+    "a2": "Weight = mg = 10 × 9.8 = 98 N downward; normal force = 98 N upward."
+  },
+  "energy": {
+    "q1": "Calculate the kinetic energy of a 3.0 kg object moving at 4.0 m/s.",
+    "q2": "A 2.0 kg book is lifted 1.5 m. Calculate its gain in gravitational potential energy using g = 9.8 m/s^2.",
+    "a1": "KE = 1/2 mv^2 = 0.5(3.0)(4.0^2) = 24 J.",
+    "a2": "ΔPE = mgh = (2.0)(9.8)(1.5) = 29.4 J."
+  },
+  "momentum": {
+    "q1": "Calculate the momentum of a 2.0 kg cart moving at 3.0 m/s east.",
+    "q2": "A 1.0 kg cart moving at 4.0 m/s sticks to a 3.0 kg cart at rest. Find their final speed.",
+    "a1": "p = mv = (2.0)(3.0) = 6.0 kg·m/s east.",
+    "a2": "Conserve momentum: (1.0)(4.0) + (3.0)(0) = (4.0 kg)v, so v = 1.0 m/s."
+  },
+  "circuits": {
+    "q1": "A 9.0 V battery is connected to a 3.0 Ω resistor. Calculate the current.",
+    "q2": "Two resistors, 2.0 Ω and 4.0 Ω, are in series. Find equivalent resistance and current with a 12 V battery.",
+    "a1": "I = V/R = 9.0/3.0 = 3.0 A.",
+    "a2": "R_eq = 2.0 + 4.0 = 6.0 Ω; I = V/R = 12/6.0 = 2.0 A."
+  },
+  "linear equations": {
+    "q1": "Solve 3x + 5 = 20.",
+    "q2": "Find the slope and y-intercept of y = -2x + 7.",
+    "a1": "3x = 15, so x = 5.",
+    "a2": "Slope m = -2 and y-intercept b = 7."
+  },
+  "systems of equations": {
+    "q1": "Solve the system x + y = 9 and x - y = 3.",
+    "q2": "Use substitution to solve y = 2x + 1 and y = x + 5.",
+    "a1": "Add equations: 2x = 12, so x = 6; then y = 3.",
+    "a2": "2x + 1 = x + 5, so x = 4 and y = 9."
+  },
+  "inequalities": {
+    "q1": "Solve -2x + 3 < 11.",
+    "q2": "Graph-style answer: solve 4x - 1 ≥ 7 and state whether the endpoint is open or closed.",
+    "a1": "-2x < 8; divide by -2 and flip the sign: x > -4.",
+    "a2": "4x ≥ 8, so x ≥ 2 with a closed circle at 2."
+  },
+  "functions": {
+    "q1": "If f(x) = x^2 - 3x, calculate f(5).",
+    "q2": "For g(x) = 2x + 7, solve g(x) = 15.",
+    "a1": "f(5) = 25 - 15 = 10.",
+    "a2": "2x + 7 = 15, so 2x = 8 and x = 4."
+  },
+  "exponents": {
+    "q1": "Simplify x^3 · x^5.",
+    "q2": "Rewrite 2^-3 as a fraction and calculate its value.",
+    "a1": "Same base multiplication adds exponents: x^(3+5) = x^8.",
+    "a2": "2^-3 = 1/2^3 = 1/8."
+  },
+  "angles": {
+    "q1": "Two supplementary angles have measures 3x and 2x + 30. Find x and both angles.",
+    "q2": "If one vertical angle is 68°, what is the measure of the opposite angle and an adjacent supplementary angle?",
+    "a1": "3x + 2x + 30 = 180, so 5x = 150 and x = 30; angles are 90° and 90°.",
+    "a2": "Opposite vertical angle = 68°; adjacent supplementary angle = 180 - 68 = 112°."
+  },
+  "triangles": {
+    "q1": "A right triangle has legs 6 and 8. Find the hypotenuse.",
+    "q2": "A triangle has angles 45° and 65°. Find the third angle.",
+    "a1": "c = √(6^2 + 8^2) = √100 = 10.",
+    "a2": "Third angle = 180° - 45° - 65° = 70°."
+  },
+  "congruence": {
+    "q1": "Two triangles have sides 5, 7, 9 and 5, 7, 9. Name the congruence shortcut.",
+    "q2": "If triangle ABC ≅ triangle DEF and AB = 8, what corresponding side equals 8?",
+    "a1": "SSS congruence because all 3 corresponding sides match.",
+    "a2": "AB corresponds to DE, so DE = 8."
+  },
+  "similarity": {
+    "q1": "Two similar triangles have scale factor 3 from small to large. If a small side is 4, find the matching large side.",
+    "q2": "A 5 cm side corresponds to a 20 cm side. Find the scale factor and the matching length for a 7 cm side.",
+    "a1": "Large side = 4 × 3 = 12.",
+    "a2": "Scale factor = 20/5 = 4; matching side = 7 × 4 = 28 cm."
+  },
+  "circles": {
+    "q1": "Find the circumference of a circle with radius 6. Leave your answer in terms of π.",
+    "q2": "Find the area of a circle with diameter 10.",
+    "a1": "C = 2πr = 2π(6) = 12π.",
+    "a2": "Radius = 5, so A = πr^2 = 25π."
+  },
+  "area and volume": {
+    "q1": "Find the area of a rectangle with length 8 and width 5.",
+    "q2": "Find the volume of a cylinder with radius 3 and height 10. Leave in terms of π.",
+    "a1": "A = lw = 8 × 5 = 40 square units.",
+    "a2": "V = πr^2h = π(3^2)(10) = 90π cubic units."
+  },
+  "quadratics": {
+    "q1": "Solve x^2 - 5x + 6 = 0 by factoring.",
+    "q2": "Find the vertex x-value of y = x^2 - 4x + 7 using x = -b/(2a).",
+    "a1": "(x - 2)(x - 3) = 0, so x = 2 or x = 3.",
+    "a2": "x = -(-4)/(2·1) = 2."
+  },
+  "polynomials": {
+    "q1": "Expand (x + 4)(x - 2).",
+    "q2": "Combine like terms: 3x^2 + 4x - 2x^2 + 7x.",
+    "a1": "x^2 - 2x + 4x - 8 = x^2 + 2x - 8.",
+    "a2": "(3x^2 - 2x^2) + (4x + 7x) = x^2 + 11x."
+  },
+  "rational expressions": {
+    "q1": "Simplify (x^2 - 9)/(x - 3) and state the excluded value.",
+    "q2": "Add 1/x + 2/x.",
+    "a1": "Factor: (x - 3)(x + 3)/(x - 3) = x + 3, with x ≠ 3.",
+    "a2": "Same denominator, so 1/x + 2/x = 3/x."
+  },
+  "exponential functions": {
+    "q1": "A population starts at 200 and doubles every hour. Write P(t) and find P(3).",
+    "q2": "A value starts at 80 and decays by 25% each step. Write the multiplier and find the value after 2 steps.",
+    "a1": "P(t) = 200·2^t; P(3) = 200·8 = 1600.",
+    "a2": "Multiplier = 0.75; value = 80(0.75)^2 = 45."
+  },
+  "logarithms": {
+    "q1": "Evaluate log_2(32).",
+    "q2": "Solve log_10(x) = 3.",
+    "a1": "log_2(32) = 5 because 2^5 = 32.",
+    "a2": "x = 10^3 = 1000."
+  },
+  "complex numbers": {
+    "q1": "Add (3 + 2i) + (5 - 7i).",
+    "q2": "Multiply (2 + i)(3 - 4i).",
+    "a1": "Real parts: 3 + 5 = 8; imaginary parts: 2i - 7i = -5i, so 8 - 5i.",
+    "a2": "6 - 8i + 3i - 4i^2 = 6 - 5i + 4 = 10 - 5i."
+  },
+  "trigonometric functions": {
+    "q1": "In a right triangle, opposite = 3 and hypotenuse = 5. Find sin(θ).",
+    "q2": "If cos(θ) = 12/13 in a right triangle, find the adjacent side when hypotenuse = 26.",
+    "a1": "sin(θ) = opposite/hypotenuse = 3/5.",
+    "a2": "12/13 = adjacent/26, so adjacent = 24."
+  },
+  "trig identities": {
+    "q1": "Use sin^2θ + cos^2θ = 1. If sinθ = 3/5 and θ is acute, find cosθ.",
+    "q2": "Simplify 1 - sin^2θ.",
+    "a1": "cos^2θ = 1 - 9/25 = 16/25, so cosθ = 4/5 for acute θ.",
+    "a2": "1 - sin^2θ = cos^2θ."
+  },
+  "vectors": {
+    "q1": "Find the magnitude of vector <6, 8>.",
+    "q2": "Add vectors <2, -1> and <5, 4>.",
+    "a1": "|v| = √(6^2 + 8^2) = √100 = 10.",
+    "a2": "Add components: <2 + 5, -1 + 4> = <7, 3>."
+  },
+  "sequences and series": {
+    "q1": "Find the 8th term of the arithmetic sequence 5, 9, 13, ...",
+    "q2": "Find the sum of the first 4 terms of the geometric sequence 3, 6, 12, ...",
+    "a1": "a_n = 5 + (n - 1)4, so a_8 = 5 + 28 = 33.",
+    "a2": "First 4 terms are 3 + 6 + 12 + 24 = 45."
+  },
+  "polar coordinates": {
+    "q1": "Convert the polar point (4, π/2) to rectangular coordinates.",
+    "q2": "For r = 3 and θ = 0, find x and y.",
+    "a1": "x = r cosθ = 4·0 = 0; y = r sinθ = 4·1 = 4, so (0, 4).",
+    "a2": "x = 3 cos0 = 3; y = 3 sin0 = 0, so (3, 0)."
+  },
+  "limits": {
+    "q1": "Evaluate lim x→2 of (x^2 - 4)/(x - 2).",
+    "q2": "From the function f(x) = 3x + 1, find lim x→4 f(x).",
+    "a1": "Factor (x - 2)(x + 2)/(x - 2), then limit = 2 + 2 = 4.",
+    "a2": "Direct substitution works: 3(4) + 1 = 13."
+  },
+  "derivative applications": {
+    "q1": "For f(x) = x^2 - 6x + 5, find the critical point and say whether it is a minimum or maximum.",
+    "q2": "If s(t) = t^3, find velocity and acceleration at t = 2.",
+    "a1": "f′(x) = 2x - 6; set 0 to get x = 3. Since f″(x) = 2 > 0, it is a minimum.",
+    "a2": "v(t) = 3t^2, so v(2) = 12; a(t) = 6t, so a(2) = 12."
+  },
+  "intro integrals": {
+    "q1": "Find ∫ 6x^2 dx.",
+    "q2": "Evaluate ∫ from 0 to 2 of 3x dx.",
+    "a1": "∫ 6x^2 dx = 2x^3 + C.",
+    "a2": "Antiderivative is (3/2)x^2; from 0 to 2 gives (3/2)(4) = 6."
+  },
+  "optimization": {
+    "q1": "A rectangle has perimeter 20, so y = 10 - x. Maximize A = x(10 - x). Find x and y.",
+    "q2": "For C(x) = x^2 - 8x + 20, find the x-value that minimizes cost.",
+    "a1": "A = 10x - x^2; A′ = 10 - 2x = 0 gives x = 5, y = 5.",
+    "a2": "C′(x) = 2x - 8 = 0, so x = 4; C″ = 2 > 0 confirms minimum."
+  },
+  "integration techniques": {
+    "q1": "Use u-substitution to evaluate ∫ 2x(x^2 + 1)^3 dx.",
+    "q2": "Use integration by parts setup for ∫ x e^x dx; choose u and dv.",
+    "a1": "Let u = x^2 + 1, du = 2x dx. Integral becomes ∫ u^3 du = u^4/4 + C = (x^2 + 1)^4/4 + C.",
+    "a2": "Choose u = x and dv = e^x dx, so du = dx and v = e^x; result is x e^x - e^x + C."
+  },
+  "applications of integrals": {
+    "q1": "Find the area between y = x and y = x^2 from x = 0 to x = 1.",
+    "q2": "Find the average value of f(x) = 2x on [0, 4].",
+    "a1": "Area = ∫_0^1 (x - x^2) dx = [x^2/2 - x^3/3]_0^1 = 1/2 - 1/3 = 1/6.",
+    "a2": "Average value = (1/(4 - 0))∫_0^4 2x dx = (1/4)[x^2]_0^4 = 4."
+  },
+  "parametric equations": {
+    "q1": "For x(t) = t + 1 and y(t) = t^2, find the point when t = 3.",
+    "q2": "For x(t) = 2t and y(t) = t^2, find dy/dx at t = 2.",
+    "a1": "x = 3 + 1 = 4 and y = 3^2 = 9, so (4, 9).",
+    "a2": "dy/dx = (dy/dt)/(dx/dt) = (2t)/2 = t, so at t = 2, dy/dx = 2."
+  },
+  "polar integrals": {
+    "q1": "Find the polar area for r = 2 from θ = 0 to θ = π/2.",
+    "q2": "Set up the area integral for r = 3 from θ = 0 to θ = π.",
+    "a1": "A = 1/2∫_0^(π/2) r^2 dθ = 1/2∫_0^(π/2)4 dθ = π.",
+    "a2": "A = 1/2∫_0^π 9 dθ = 9π/2."
+  },
+  "vectors in space": {
+    "q1": "Find the magnitude of <1, 2, 2>.",
+    "q2": "Compute the dot product <1, 3, -2> · <4, 0, 5>.",
+    "a1": "|v| = √(1^2 + 2^2 + 2^2) = √9 = 3.",
+    "a2": "Dot product = 1·4 + 3·0 + (-2)·5 = 4 + 0 - 10 = -6."
+  },
+  "partial derivatives": {
+    "q1": "For f(x, y) = x^2y + 3y, find f_x.",
+    "q2": "For f(x, y) = x^2y + 3y, find f_y at (2, 1).",
+    "a1": "Treat y as constant: f_x = 2xy.",
+    "a2": "f_y = x^2 + 3; at (2, 1), f_y = 4 + 3 = 7."
+  },
+  "multiple integrals": {
+    "q1": "Evaluate ∫_0^2 ∫_0^3 1 dy dx.",
+    "q2": "Evaluate ∫_0^1 ∫_0^2 x dy dx.",
+    "a1": "Inner integral gives 3; outer ∫_0^2 3 dx = 6.",
+    "a2": "Inner integral with respect to y gives 2x; ∫_0^1 2x dx = 1."
+  },
+  "line integrals": {
+    "q1": "For F = <2, 0> along a straight path from (0, 0) to (3, 0), compute work ∫ F · dr.",
+    "q2": "Parameterize the line from (0, 0) to (2, 2) as r(t) for 0 ≤ t ≤ 1.",
+    "a1": "Force and displacement align: work = 2 × 3 = 6 J.",
+    "a2": "r(t) = <2t, 2t>, 0 ≤ t ≤ 1."
+  },
+  "surface integrals": {
+    "q1": "For a flat square surface of area 6 with constant field F = <0, 0, 2> and upward normal, compute flux.",
+    "q2": "A rectangular plate has length 3 and width 4. Set up ∫∫_S 5 dS for constant density 5.",
+    "a1": "Flux = F · n × area = 2 × 6 = 12.",
+    "a2": "∫∫_S 5 dS = 5(area) = 5(3 × 4) = 60."
+  }
+};
+
+const STEM_SUBJECT_KEYS = new Set(["chemistry", "physics", "math"]);
+
+function findPracticeEntry(library, cleanTopic) {
+  const normalizedTopic = normalizeForLookup(cleanTopic);
+  const entries = Object.entries(library).sort((a, b) => normalizeForLookup(b[0]).length - normalizeForLookup(a[0]).length);
+  return entries.find(([key]) => {
+    const normalizedKey = normalizeForLookup(key);
+    return normalizedTopic === normalizedKey || normalizedTopic.includes(normalizedKey) || normalizedKey.includes(normalizedTopic);
+  });
+}
+
+function buildStemMathFreeResponse(cleanTopic) {
+  const direct = findPracticeEntry(STEM_MATH_FREE_RESPONSE_LIBRARY, cleanTopic)?.[1];
+  if (direct) return direct;
+  return {
+    q1: `Use a numeric example for ${cleanTopic}: start with 12 units, apply a factor of 3, then calculate the final value.`,
+    q2: `Create a second calculation for ${cleanTopic} using 4 and 8, then solve it step by step.`,
+    a1: `12 × 3 = 36; the important part is showing the setup, operation, and unit/meaning.`,
+    a2: `A strong answer includes a concrete equation with 4 and 8, the calculation, and a final interpreted result.`
+  };
+}
 
 function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic || state.activeTopic, subjectKey, state);
-  const normalizedTopic = normalizeForLookup(cleanTopic);
-  const directPractice = Object.entries(PRACTICE_LIBRARY).find(([key]) => {
-    const normalizedKey = normalizeForLookup(key);
-    return normalizedTopic === normalizedKey || normalizedTopic.includes(normalizedKey) || normalizedKey.includes(normalizedTopic);
-  });
+  const directPractice = findPracticeEntry(PRACTICE_LIBRARY, cleanTopic);
   if (directPractice) return directPractice[1];
 
   const explanation = findExplanation(subjectKey, cleanTopic);
   const anchor = explanation?.title || cleanTopic;
   const keyIdea = explanation?.keyIdeas?.[0] || `Explain the most important rule, cause, structure, or pattern in ${cleanTopic}.`;
   const example = explanation?.example || `Create a small example where ${cleanTopic} changes the answer or interpretation.`;
+
+  if (STEM_SUBJECT_KEYS.has(subjectKey)) {
+    const freeResponse = buildStemMathFreeResponse(cleanTopic);
+    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.`;
+  }
+
   return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.`;
 }
 
@@ -983,7 +1268,7 @@ function setupApp() {
   function openStudyMode(shouldMove = true) {
     const subject = getSubject(state.activeSubject);
     renderActiveSubject();
-    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” Practice now includes conceptual and free-response questions. No prompt required — Kiwi brought the lesson plan.`;
+    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” Practice now includes conceptual questions plus math-based free-response questions for math, chemistry, and physics. No prompt required — Kiwi brought the lesson plan.`;
     els.bubble.textContent = `${subject.label} study mode opened. Tiny paws deployed.`;
     if (shouldMove) moveIntoStudyMode();
   }
