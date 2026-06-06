@@ -212,6 +212,44 @@ function testCustomStemTopicGetsMathBasedPractice() {
   assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i);
 }
 
+function testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "significant figures",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Significant figures/i);
+  assert.match(response, /measured digits/i);
+  assert.match(response, /leading zeros are not significant/i);
+  assert.match(response, /addition and subtraction/i);
+  assert.match(response, /decimal places/i);
+  assert.match(response, /multiplication and division/i);
+  assert.match(response, /fewest significant figures/i);
+  assert.doesNotMatch(response, /particles, energy, bonding, reactions, structure/i);
+}
+
+function testSignificantFiguresCustomPromptGetsCorrectPractice() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Practice Problem",
+    topic: "sig figs",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Kiwi-generated practice: Significant figures/i);
+  assert.match(response, /Conceptual questions/i);
+  assert.match(response, /Math-based free response questions/i);
+  assert.match(response, /0\.00450 has 3 significant figures/i);
+  assert.match(response, /12\.40 \+ 0\.3 = 12\.7/i);
+  assert.match(response, /4\.20 × 3\.1 = 13/i);
+  assert.match(response, /Answer key/i);
+  assert.doesNotMatch(response, /the rule, formula, or quantity your class uses/i);
+}
+
 function testMathTopicsAreLevelSpecific() {
   const algebraTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Algebra 1", activeTopic: "linear equations" });
   assert.deepEqual(algebraTopics, ["linear equations", "systems of equations", "inequalities", "functions", "exponents"]);
@@ -265,5 +303,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
