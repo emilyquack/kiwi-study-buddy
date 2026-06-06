@@ -246,8 +246,100 @@ function testSignificantFiguresCustomPromptGetsCorrectPractice() {
   assert.match(response, /0\.00450 has 3 significant figures/i);
   assert.match(response, /12\.40 \+ 0\.3 = 12\.7/i);
   assert.match(response, /4\.20 × 3\.1 = 13/i);
+  assert.match(response, /Source check/i);
+  assert.match(response, /OpenStax Chemistry 2e/i);
   assert.match(response, /Answer key/i);
   assert.doesNotMatch(response, /the rule, formula, or quantity your class uses/i);
+}
+
+function testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "significiant figures",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Significant figures: actual Kiwi explanation/i);
+  assert.match(response, /measured digits/i);
+  assert.match(response, /fewest significant figures/i);
+  assert.match(response, /OpenStax Chemistry 2e/i);
+  assert.match(response, /Khan Academy/i);
+  assert.doesNotMatch(response, /Custom Kiwi lesson: significiant figures/i);
+  assert.doesNotMatch(response, /particles, energy, bonding, reactions, structure/i);
+
+  const practice = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Practice Problem",
+    topic: "significiant figures",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(practice, /Kiwi-generated practice: Significant figures/i);
+  assert.match(practice, /0\.00450 has 3 significant figures/i);
+  assert.match(practice, /12\.40 \+ 0\.3 = 12\.7/i);
+  assert.match(practice, /4\.20 × 3\.1 = 13/i);
+  assert.match(practice, /OpenStax Chemistry 2e/i);
+  assert.doesNotMatch(practice, /the rule, formula, or quantity your class uses for significiant figures/i);
+}
+
+function testFindSourcesForKnownAndCustomTopics() {
+  const known = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Find Sources",
+    topic: "sig figs",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(known, /Source starter pack: Significant figures/i);
+  assert.match(known, /OpenStax Chemistry 2e/i);
+  assert.match(known, /Measurement Uncertainty, Accuracy, and Precision/i);
+  assert.match(known, /Khan Academy/i);
+  assert.match(known, /https:\/\/openstax\.org\/books\/chemistry-2e\/pages\/1-5-measurement-uncertainty-accuracy-and-precision/i);
+
+  const custom = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Find Sources",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(custom, /Source starter pack: banana orbital sparkles/i);
+  assert.match(custom, /OpenStax search/i);
+  assert.match(custom, /Khan Academy search/i);
+  assert.match(custom, /Google Scholar search/i);
+  assert.match(custom, /banana%20orbital%20sparkles/i);
+  assert.doesNotMatch(custom, /not in Kiwi's built-in lesson library yet/i);
+
+  const customLesson = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(customLesson, /Custom Kiwi lesson: banana orbital sparkles/i);
+  assert.match(customLesson, /Source check/i);
+  assert.match(customLesson, /OpenStax search/i);
+  assert.match(customLesson, /Google Scholar search/i);
+
+  const customPractice = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Practice Problem",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(customPractice, /Kiwi-generated practice: banana orbital sparkles/i);
+  assert.match(customPractice, /Math-based free response questions/i);
+  assert.match(customPractice, /Source check/i);
+  assert.match(customPractice, /OpenStax search/i);
 }
 
 function testMathTopicsAreLevelSpecific() {
@@ -301,7 +393,10 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /scrollIntoView/);
   assert.match(app, /Study mode is open/);
   assert.match(app, /data-topic/);
+  assert.match(app, /Find Sources/);
+  assert.match(app, /target="_blank"/);
+  assert.match(app, /rel="noopener noreferrer"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

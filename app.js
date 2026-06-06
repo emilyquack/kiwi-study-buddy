@@ -8,7 +8,7 @@ const SUBJECTS = {
     accessory: "🥽 Tiny lab goggles activated",
     line: "Cells, genetics, evolution, ecology, physiology, enzymes, and lab thinking.",
     topics: ["cell membranes", "genetics", "evolution", "enzymes", "ecology"],
-    tools: ["Explain", "Quiz Me", "Flashcards", "Diagram Practice", "Study Guide", "Summarize Notes"],
+    tools: ["Explain", "Quiz Me", "Flashcards", "Diagram Practice", "Study Guide", "Summarize Notes", "Find Sources"],
     voice: "Biology mode. Tiny goggles activated."
   },
   chemistry: {
@@ -18,7 +18,7 @@ const SUBJECTS = {
     accessory: "🥽 Safety goggles on; unit chaos off",
     line: "Atoms, bonding, measurements, stoichiometry, molarity, acids/bases, equilibrium, and kinetics.",
     topics: ["stoichiometry", "molarity", "significant figures", "periodic trends", "acids and bases", "equilibrium"],
-    tools: ["Explain", "Practice Problem", "Unit Check", "Flashcards", "Study Guide", "Summarize Notes"],
+    tools: ["Explain", "Practice Problem", "Unit Check", "Flashcards", "Study Guide", "Summarize Notes", "Find Sources"],
     voice: "Chemistry mode. Before we do math crimes, we write the units."
   },
   physics: {
@@ -28,7 +28,7 @@ const SUBJECTS = {
     accessory: "➡️ Kiwi brought arrows",
     line: "Motion, forces, energy, momentum, waves, circuits, fluids, and thermodynamics.",
     topics: ["kinematics", "forces", "energy", "momentum", "circuits"],
-    tools: ["Explain", "Formula Help", "Free-Body Checklist", "Practice Problem", "Quiz Me", "Study Guide"],
+    tools: ["Explain", "Formula Help", "Free-Body Checklist", "Practice Problem", "Quiz Me", "Study Guide", "Find Sources"],
     voice: "Physics mode. Draw the forces first. Kiwi is watching."
   },
   math: {
@@ -47,7 +47,7 @@ const SUBJECTS = {
       "Calculus 2": ["integration techniques", "applications of integrals", "sequences and series", "parametric equations", "polar integrals"],
       "Calculus 3": ["vectors in space", "partial derivatives", "multiple integrals", "line integrals", "surface integrals"]
     },
-    tools: ["Explain", "Step-by-Step", "Practice Problem", "Mistake Check", "Flashcards", "Study Guide"],
+    tools: ["Explain", "Step-by-Step", "Practice Problem", "Mistake Check", "Flashcards", "Study Guide", "Find Sources"],
     voice: "Math mode. Numbers have formed a small rebellion.",
     levels: ["Algebra 1", "Geometry", "Algebra 2", "Precalculus", "Calculus 1", "Calculus 2", "Calculus 3"]
   },
@@ -58,7 +58,7 @@ const SUBJECTS = {
     accessory: "🧠 Thought bubbles deployed",
     line: "Research methods, learning, memory, development, personality, disorders, and social psych.",
     topics: ["research methods", "memory", "learning", "development", "social psychology"],
-    tools: ["Explain", "Quiz Me", "Compare Theories", "Flashcards", "Scenario Practice", "Study Guide"],
+    tools: ["Explain", "Quiz Me", "Compare Theories", "Flashcards", "Scenario Practice", "Study Guide", "Find Sources"],
     voice: "Psychology mode. Let's analyze the behavior. Not yours. Probably."
   },
   writing: {
@@ -68,7 +68,7 @@ const SUBJECTS = {
     accessory: "✍️ Comma goblin patrol begins",
     line: "Essay planning, thesis statements, paragraph structure, grammar, citations, and revision.",
     topics: ["thesis statements", "paragraph structure", "rhetorical analysis", "citations", "revision"],
-    tools: ["Outline", "Thesis Help", "Revise Paragraph", "Quote Integration", "Grammar Check", "Study Guide"],
+    tools: ["Outline", "Thesis Help", "Revise Paragraph", "Quote Integration", "Grammar Check", "Study Guide", "Find Sources"],
     voice: "Writing mode. This paragraph has feelings, but it needs a spine."
   },
   history: {
@@ -78,7 +78,7 @@ const SUBJECTS = {
     accessory: "🏛️ Timeline scarf wrapped",
     line: "Timelines, cause/effect, historical figures, primary sources, and essay prep.",
     topics: ["cause and effect", "primary sources", "timelines", "historical figures", "comparisons"],
-    tools: ["Explain", "Timeline", "Cause/Effect", "Flashcards", "Essay Outline", "Study Guide"],
+    tools: ["Explain", "Timeline", "Cause/Effect", "Flashcards", "Essay Outline", "Study Guide", "Find Sources"],
     voice: "History mode. Everyone made choices. Some were questionable."
   }
 };
@@ -206,7 +206,7 @@ const EXPLANATION_LIBRARY = {
       testCue: "Look for words like solution, concentration, mol/L, dilution, or M1V1 = M2V2."
     },
     {
-      aliases: ["significant figures", "sig figs", "sigfigs", "significant digits", "measurement precision", "rounding measured values"],
+      aliases: ["significant figures", "significant figure", "sig figs", "sig fig", "sigfigs", "significant digits", "significiant figures", "significiant figure", "signficant figures", "measurement precision", "rounding measured values"],
       title: "Significant figures",
       overview: "Significant figures are the measured digits in a number: all the digits you know for sure plus one final estimated digit. They show the precision of a measurement, so chemistry answers should not pretend to be more precise than the lab tools or starting data.",
       keyIdeas: ["Nonzero digits are significant, zeros between nonzero digits are significant, and leading zeros are not significant because they only place the decimal.", "Trailing zeros are significant when a decimal point shows they were measured, such as 2.300 having four significant figures.", "For addition and subtraction, round the final answer to the least number of decimal places; for multiplication and division, round to the fewest significant figures."],
@@ -771,6 +771,94 @@ function findExplanation(subjectKey, cleanTopic) {
   }));
 }
 
+const SOURCE_LIBRARY = {
+  chemistry: [
+    {
+      aliases: ["significant figures", "significant figure", "sig figs", "sig fig", "sigfigs", "significant digits", "significiant figures", "significiant figure", "signficant figures", "measurement precision", "rounding measured values"],
+      title: "Significant figures",
+      sources: [
+        {
+          label: "OpenStax Chemistry 2e — Measurement Uncertainty, Accuracy, and Precision",
+          url: "https://openstax.org/books/chemistry-2e/pages/1-5-measurement-uncertainty-accuracy-and-precision",
+          note: "Textbook section on uncertainty, precision, and reporting measured values."
+        },
+        {
+          label: "Khan Academy — Significant figures review",
+          url: "https://www.khanacademy.org/math/arithmetic-home/arith-review-decimals/arithmetic-significant-figures-tutorial/a/significant-figures-review",
+          note: "Student-friendly rules for identifying and calculating with significant figures."
+        },
+        {
+          label: "Wikipedia — Significant figures",
+          url: "https://en.wikipedia.org/wiki/Significant_figures",
+          note: "Quick reference for terminology and examples; cross-check with your class/textbook rules."
+        }
+      ]
+    }
+  ]
+};
+
+function findSourceEntry(subjectKey, cleanTopic) {
+  const normalizedTopic = normalizeForLookup(cleanTopic);
+  const entries = SOURCE_LIBRARY[subjectKey] || [];
+  return entries.find(entry => entry.aliases.some(alias => {
+    const normalizedAlias = normalizeForLookup(alias);
+    return normalizedTopic === normalizedAlias || normalizedTopic.includes(normalizedAlias) || normalizedAlias.includes(normalizedTopic);
+  }));
+}
+
+function formatSources(sources) {
+  return sources.map((source, index) => `${index + 1}. ${source.label}\n   ${source.url}\n   Why Kiwi picked it: ${source.note}`).join("\n");
+}
+
+function buildSourceSearches(subjectKey, cleanTopic) {
+  const subject = getSubject(subjectKey);
+  const query = `${cleanTopic} ${subject.label}`.trim();
+  const encodedTopic = encodeURIComponent(cleanTopic);
+  const encodedQuery = encodeURIComponent(query);
+  return [
+    {
+      label: "OpenStax search",
+      url: `https://openstax.org/search?q=${encodedQuery}`,
+      note: "Good first stop for free textbook chapters and review sections."
+    },
+    {
+      label: "Khan Academy search",
+      url: `https://www.khanacademy.org/search?page_search_query=${encodedTopic}`,
+      note: "Useful for student-friendly explanations and worked examples."
+    },
+    {
+      label: "Google Scholar search",
+      url: `https://scholar.google.com/scholar?q=${encodedQuery}`,
+      note: "Use this when you need more academic or primary-source material."
+    },
+    {
+      label: "Wikipedia search",
+      url: `https://en.wikipedia.org/w/index.php?search=${encodedQuery}`,
+      note: "Fast orientation source; verify details with textbook or class materials."
+    }
+  ];
+}
+
+function buildInlineSourceBlock(subjectKey, cleanTopic) {
+  const sourceEntry = findSourceEntry(subjectKey, cleanTopic);
+  if (sourceEntry) {
+    const topSources = sourceEntry.sources.slice(0, 2);
+    return `\n\nSource check:\n${formatSources(topSources)}`;
+  }
+  const searchSources = buildSourceSearches(subjectKey, cleanTopic).slice(0, 3);
+  return `\n\nSource check:\nKiwi does not have a curated source card for this custom topic yet, so verify it with these search links before memorizing:\n${formatSources(searchSources)}`;
+}
+
+function buildSourceResponse({ subjectKey, cleanTopic }) {
+  const sourceEntry = findSourceEntry(subjectKey, cleanTopic);
+  if (sourceEntry) {
+    return `Source starter pack: ${sourceEntry.title}\n\nCurated sources Kiwi can point you to:\n${formatSources(sourceEntry.sources)}\n\nUse these to verify rules/examples before trusting any generated explanation. Tiny citation paws deployed.`;
+  }
+
+  const searchSources = buildSourceSearches(subjectKey, cleanTopic);
+  return `Source starter pack: ${cleanTopic}\n\nI do not have a curated source card for this custom topic yet, so Kiwi built reliable search links instead:\n${formatSources(searchSources)}\n\nBest workflow: open 2 sources, paste the class definition or example into the notes box, then ask Kiwi to teach/practice from that source-backed note.`;
+}
+
 function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes }) {
   const subjectFrames = {
     biology: {
@@ -818,7 +906,8 @@ function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, note
   };
   const frame = subjectFrames[subjectKey] || subjectFrames.biology;
   const noteFocus = notes && notes.trim() ? notes.trim().slice(0, 220) + (notes.trim().length > 220 ? "…" : "") : "No notes pasted yet — Kiwi will teach from the subject pattern and topic name, then you can add class notes for extra precision.";
-  return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition:\nIn ${subject.label}, treat ${cleanTopic} as ${frame.definition}.\n\nKey ideas:\n${frame.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${frame.example}\n\nCommon mistake:\n${frame.mistake}\n\nHow to recognize it on a test:\nLook for the topic name, related vocabulary, data/diagrams, and a prompt asking you to explain, calculate, compare, or apply the idea.\n\nYour custom notes/question anchor:\n${noteFocus}`;
+  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition:\nIn ${subject.label}, treat ${cleanTopic} as ${frame.definition}.\n\nKey ideas:\n${frame.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${frame.example}\n\nCommon mistake:\n${frame.mistake}\n\nHow to recognize it on a test:\nLook for the topic name, related vocabulary, data/diagrams, and a prompt asking you to explain, calculate, compare, or apply the idea.\n\nYour custom notes/question anchor:\n${noteFocus}${sourceBlock}`;
 }
 
 function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state = DEFAULT_STATE }) {
@@ -829,13 +918,14 @@ function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, 
     return `${buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes })}\n\n${confidenceLine}\n${noteHint}`;
   }
   const noteFocus = notes && notes.trim() ? `\n\nYour note/question focus: “${notes.trim().slice(0, 180)}${notes.trim().length > 180 ? "…" : ""}”` : "";
-  return `${explanation.title}${level}: actual Kiwi explanation\n\n${explanation.overview}\n\nKey ideas:\n${explanation.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${explanation.example}\n\nCommon mistake:\n${explanation.mistake}\n\nHow to recognize it on a test:\n${explanation.testCue}${noteFocus}\n\n${confidenceLine}\n${noteHint}`;
+  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  return `${explanation.title}${level}: actual Kiwi explanation\n\n${explanation.overview}\n\nKey ideas:\n${explanation.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${explanation.example}\n\nCommon mistake:\n${explanation.mistake}\n\nHow to recognize it on a test:\n${explanation.testCue}${noteFocus}${sourceBlock}\n\n${confidenceLine}\n${noteHint}`;
 }
 
 const PRACTICE_LIBRARY = {
   stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nConceptual questions\n1. Why must a stoichiometry problem start with a balanced chemical equation?\n2. What is the difference between a coefficient and a subscript?\n\nMath-based free response questions\n1. Balanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form? Show your work with the full grams → moles → mole ratio → grams path.\n2. Balanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form? Show your work and identify the mole ratio.\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\nConceptual 1. The balanced equation gives the mole ratios; without it, the recipe is wrong.\nConceptual 2. Coefficients compare amounts of substances in a reaction; subscripts count atoms inside one formula.\nFree response 1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\nFree response 2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
   molarity: `Kiwi-generated practice: Molarity\n\nConceptual questions\n1. What does molarity measure in a solution?\n2. Why does volume usually need to be converted from mL to L before calculating molarity?\n\nMath-based free response questions\n1. You dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity? Show your work.\n2. How many moles of glucose are in 250 mL of a 0.400 M glucose solution? Show your work with the liter conversion.\n\nAnswer key\nConceptual 1. Molarity is moles of solute per liter of solution.\nConceptual 2. Molarity's unit is mol/L, so mL must become L to match the formula.\nFree response 1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\nFree response 2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
-  "significant figures sig figs significant digits": `Kiwi-generated practice: Significant figures\n\nConceptual questions\n1. Why do significant figures matter when reporting lab measurements?\n2. Is the zero in 0.00450 significant? Explain which zeros count and which zeros only place the decimal.\n\nMath-based free response questions\n1. Count significant figures: 0.00450 has how many significant figures? Then round 0.00450 to 2 significant figures. Show your work.\n2. Apply the operation rules: calculate 12.40 + 0.3 and 4.20 × 3.1. Round each final answer correctly and explain whether you used decimal places or fewest significant figures. Show your work.\n\nAnswer key\nConceptual 1. Significant figures show measurement precision, so the final answer should not claim more precision than the measured data supports.\nConceptual 2. Leading zeros are not significant; captive zeros and decimal trailing zeros after a measured nonzero digit are significant. In 0.00450, the two zeros before 4 are placeholders, while the final zero after 5 is significant.\nFree response 1. 0.00450 has 3 significant figures: 4, 5, and the final 0. Rounded to 2 significant figures, 0.00450 becomes 0.0045.\nFree response 2. Addition/subtraction uses decimal places: 12.40 + 0.3 = 12.7 because the least precise term has 1 decimal place. Multiplication/division uses fewest significant figures: 4.20 × 3.1 = 13 because 13.02 rounds to 2 significant figures.\n\nKiwi check: addition/subtraction = decimal places; multiplication/division = fewest significant figures. Tiny measurement paws, no fake precision.`,
+  "significant figures significant figure sig figs sig fig sigfigs significant digits significiant figures significiant figure signficant figures": `Kiwi-generated practice: Significant figures\n\nConceptual questions\n1. Why do significant figures matter when reporting lab measurements?\n2. Is the zero in 0.00450 significant? Explain which zeros count and which zeros only place the decimal.\n\nMath-based free response questions\n1. Count significant figures: 0.00450 has how many significant figures? Then round 0.00450 to 2 significant figures. Show your work.\n2. Apply the operation rules: calculate 12.40 + 0.3 and 4.20 × 3.1. Round each final answer correctly and explain whether you used decimal places or fewest significant figures. Show your work.\n\nAnswer key\nConceptual 1. Significant figures show measurement precision, so the final answer should not claim more precision than the measured data supports.\nConceptual 2. Leading zeros are not significant; captive zeros and decimal trailing zeros after a measured nonzero digit are significant. In 0.00450, the two zeros before 4 are placeholders, while the final zero after 5 is significant.\nFree response 1. 0.00450 has 3 significant figures: 4, 5, and the final 0. Rounded to 2 significant figures, 0.00450 becomes 0.0045.\nFree response 2. Addition/subtraction uses decimal places: 12.40 + 0.3 = 12.7 because the least precise term has 1 decimal place. Multiplication/division uses fewest significant figures: 4.20 × 3.1 = 13 because 13.02 rounds to 2 significant figures.\n\nKiwi check: addition/subtraction = decimal places; multiplication/division = fewest significant figures. Tiny measurement paws, no fake precision.`,
   "cell membranes": `Kiwi-generated practice: Cell membranes\n\nConceptual questions\n1. What does selectively permeable mean?\n2. Why do ions usually need transport proteins to cross a membrane?\n\nFree response questions\n1. A cell is placed in a very salty solution. Predict the direction water moves and explain why.\n2. Compare oxygen crossing the phospholipid bilayer with sodium ions crossing it. Use membrane structure in your answer.\n\nAnswer key\nConceptual 1. Some substances cross easily, while others are blocked or need help.\nConceptual 2. Ions are charged, so the hydrophobic membrane interior repels them unless a protein channel or pump helps.\nFree response 1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\nFree response 2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
   derivatives: `Kiwi-generated practice: Derivatives\n\nConceptual questions\n1. What does a derivative measure at one point?\n2. How is a derivative different from an average rate of change?\n\nMath-based free response questions\n1. Find f′(x) if f(x) = 4x^3 - 5x + 2. Show your work with the power rule.\n2. If s(t) = t^2 + 3t, what is the velocity at t = 4? Show your work and explain why velocity is a derivative.\n\nAnswer key\nConceptual 1. A derivative measures instantaneous rate of change, or tangent slope.\nConceptual 2. Average rate uses an interval; a derivative describes the rate at a single instant.\nFree response 1. f′(x) = 12x^2 - 5.\nFree response 2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`
 };
@@ -1128,7 +1218,8 @@ function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_S
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic || state.activeTopic, subjectKey, state);
   const directPractice = findPracticeEntry(PRACTICE_LIBRARY, cleanTopic);
-  if (directPractice) return directPractice[1];
+  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  if (directPractice) return `${directPractice[1]}${sourceBlock}`;
 
   const explanation = findExplanation(subjectKey, cleanTopic);
   const anchor = explanation?.title || cleanTopic;
@@ -1138,10 +1229,10 @@ function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_S
 
   if (STEM_SUBJECT_KEYS.has(subjectKey)) {
     const freeResponse = buildStemMathFreeResponse(cleanTopic, notes);
-    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.`;
+    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.${sourceBlock}`;
   }
 
-  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.`;
+  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.${sourceBlock}`;
 }
 
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
@@ -1158,6 +1249,7 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
     "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, notes, state }),
     "Study Guide": `Mini study guide for ${cleanTopic}${level}:\n\n• Must-know ideas\n• Key vocabulary/formulas\n• One worked example\n• Two quiz questions\n• One common misconception\n• Confidence rating after review\n\nStart here, then mark your confidence again.` ,
     "Summarize Notes": `Summary plan for ${cleanTopic}${level}:\n\n• Big idea: write it in one sentence.\n• Details: keep only test-relevant facts.\n• Connections: link it to the previous topic.\n• Check: ask one question your teacher might ask.\n\n${noteHint}`,
+    "Find Sources": buildSourceResponse({ subjectKey, cleanTopic }),
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,
     "Mistake Check": `Mistake check for ${cleanTopic}${level}:\n\nKiwi will look for sign errors, dropped units, skipped assumptions, unlabeled graphs, and suspicious leaps. Circle the step where your confidence drops first.` ,
     "Unit Check": `Unit check for ${cleanTopic}:\n\nWrite every number with units, convert before calculating, and make sure the final unit matches the question. Chemistry gremlins fear dimensional analysis.` ,
@@ -1218,6 +1310,20 @@ function setupApp() {
   };
   let state = loadState();
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderOutput(value) {
+    const escaped = escapeHtml(value);
+    els.output.innerHTML = escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+  }
+
   function getConfidence() {
     return document.querySelector('input[name="confidence"]:checked')?.value || "low";
   }
@@ -1245,7 +1351,7 @@ function setupApp() {
       confidence: getConfidence(),
       state
     });
-    els.output.textContent = response;
+    renderOutput(response);
     els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : "Teaching mode. Kiwi has seized the chalkboard.";
   }
 
@@ -1315,7 +1421,7 @@ function setupApp() {
   function openStudyMode(shouldMove = true) {
     const subject = getSubject(state.activeSubject);
     renderActiveSubject();
-    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic” or “Give me practice problems.” Practice now includes conceptual questions plus math-based free-response questions for math, chemistry, and physics. No prompt required — Kiwi brought the lesson plan.`;
+    renderOutput(`${subject.voice}\n\nStudy mode is open. Pick a built-in topic and press “Teach this topic,” “Give me practice problems,” or “Find Sources.” Practice includes conceptual questions plus math-based free-response questions for math, chemistry, and physics. No prompt required — Kiwi brought the lesson plan.`);
     els.bubble.textContent = `${subject.label} study mode opened. Tiny paws deployed.`;
     if (shouldMove) moveIntoStudyMode();
   }
@@ -1361,14 +1467,14 @@ function setupApp() {
     els.topic.value = "";
     saveState(state);
     renderTopicLibrary();
-    els.output.textContent = buildStudyResponse({
+    renderOutput(buildStudyResponse({
       subjectKey: state.activeSubject,
       action: "Explain",
       topic: state.activeTopic,
       notes: els.notes.value,
       confidence: getConfidence(),
       state
-    });
+    }));
     els.bubble.textContent = `${state.activeTopic} selected. Kiwi opened the mini lesson.`;
   });
 
@@ -1386,7 +1492,7 @@ function setupApp() {
       confidence: getConfidence(),
       state
     });
-    els.output.textContent = response;
+    renderOutput(response);
     els.bubble.textContent = `${button.dataset.action} mode. Kiwi is academically suspicious.`;
   });
 
@@ -1408,7 +1514,7 @@ function setupApp() {
     els.topic.value = weak.topic;
     saveState(state);
     renderActiveSubject();
-    els.output.textContent = buildStudyResponse({ subjectKey: weak.subjectKey, action: "Explain", topic: weak.topic, notes: "", confidence: "low", state });
+    renderOutput(buildStudyResponse({ subjectKey: weak.subjectKey, action: "Explain", topic: weak.topic, notes: "", confidence: "low", state }));
   });
 
   els.resetDemo.addEventListener("click", () => {
