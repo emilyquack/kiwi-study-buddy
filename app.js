@@ -764,17 +764,52 @@ function findExplanation(subjectKey, cleanTopic) {
 
 function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes }) {
   const subjectFrames = {
-    biology: ["the structures or process involved", "how energy, matter, or information moves", "what outcome changes in the living system"],
-    chemistry: ["the particles, bonds, or substances involved", "the units, ratios, or evidence", "what changes during the reaction or property trend"],
-    physics: ["the object or system", "the variables and directions", "the law, graph, or equation that connects them"],
-    math: ["the type of expression, equation, shape, or function", "the rule that fits this class level", "the step that preserves equality or the graph's meaning"],
-    psychology: ["the behavior or mental process", "the theory or evidence", "how it differs from a similar concept"],
-    writing: ["the claim or purpose", "the evidence", "how the analysis connects back to the prompt"],
-    history: ["what happened", "the context and causes", "the effects and historical significance"]
+    biology: {
+      definition: "a living-system structure, process, or relationship",
+      keyIdeas: ["Identify the parts involved.", "Track how matter, energy, or information moves.", "Connect the process to a cell, organism, population, or ecosystem outcome."],
+      example: `If ${cleanTopic} appears in a biology question, describe the biological players, the sequence of events, and the effect on the living system.`,
+      mistake: "Do not list vocabulary without explaining the cause-and-effect relationship."
+    },
+    chemistry: {
+      definition: "a chemistry idea involving particles, energy, bonding, reactions, structure, or measurable evidence",
+      keyIdeas: ["Identify the particles, bonds, substances, or energy changes involved.", "Look for units, ratios, charge, concentration, or evidence from data.", "Connect the microscopic particle behavior to the observable result."],
+      example: `For ${cleanTopic}, start by naming the chemical species or energy change, then explain what changes and how you would measure it.`,
+      mistake: "Do not skip units or particle-level reasoning; chemistry answers need both the tiny world and the evidence."
+    },
+    physics: {
+      definition: "a physics situation involving objects, motion, forces, energy, waves, fields, or circuits",
+      keyIdeas: ["Define the system and draw or imagine the diagram.", "List knowns, unknowns, units, and directions.", "Choose the law, graph, or equation that connects the variables."],
+      example: `For ${cleanTopic}, translate the words into variables first, then use the equation that links the given values to the unknown.`,
+      mistake: "Do not do number-crunching before choosing directions, units, and the physical law."
+    },
+    math: {
+      definition: "a math skill involving expressions, equations, functions, shapes, rates, or accumulation",
+      keyIdeas: ["Identify what kind of object you have: expression, equation, graph, shape, or function.", "Choose the rule that matches this class level.", "Show one valid algebra/geometry/calculus move per line."],
+      example: `For ${cleanTopic}, write a small sample problem, label the goal, and solve step-by-step while preserving equality or meaning.`,
+      mistake: "Do not jump steps; the missing line is usually where the math gremlin hides."
+    },
+    psychology: {
+      definition: "a psychology concept about behavior, thought, development, learning, memory, or social influence",
+      keyIdeas: ["Define the behavior or mental process.", "Connect it to a theory, study design, or evidence type.", "Contrast it with a nearby concept so you can recognize it on a test."],
+      example: `For ${cleanTopic}, give a real-life scenario, identify the concept, and explain why it fits better than a similar term.`,
+      mistake: "Do not only name the term; explain the evidence or behavior pattern."
+    },
+    writing: {
+      definition: "a writing move involving claim, evidence, organization, style, grammar, or revision",
+      keyIdeas: ["Identify the purpose or prompt.", "Name the sentence/paragraph/essay part being improved.", "Explain how the choice affects clarity, argument, or reader understanding."],
+      example: `For ${cleanTopic}, write a before-and-after sentence or outline piece, then explain why the revision is stronger.`,
+      mistake: "Do not fix surface wording while ignoring purpose and structure."
+    },
+    history: {
+      definition: "a history concept involving events, people, causes, sources, comparison, or change over time",
+      keyIdeas: ["Place the topic in time and context.", "Separate causes, events, effects, and significance.", "Use evidence or sourcing instead of memorizing isolated facts."],
+      example: `For ${cleanTopic}, make a cause → event → effect chain and explain why it mattered.`,
+      mistake: "Do not list dates without explaining the historical logic."
+    }
   };
   const frame = subjectFrames[subjectKey] || subjectFrames.biology;
-  const noteFocus = notes && notes.trim() ? `\n\nUsing your notes/question as the anchor: “${notes.trim().slice(0, 180)}${notes.trim().length > 180 ? "…" : ""}”` : "";
-  return `Custom topic: ${cleanTopic}${level}\n\nTiny honesty note: ${cleanTopic} is not in Kiwi's built-in lesson library yet, so I will not pretend this is a full textbook-perfect explanation. Here is the safest study structure for this custom topic.\n\nHow to build the explanation:\n• Define ${cleanTopic} in one plain sentence.\n• Identify ${frame[0]}.\n• Explain ${frame[1]}.\n• Finish with ${frame[2]}.\n\nPractice check:\nWrite: “${cleanTopic} matters because ___.” Then add one example and one common mistake to avoid.\n\nIf you paste notes or a homework question, Kiwi can organize that specific information without guessing.${noteFocus}`;
+  const noteFocus = notes && notes.trim() ? notes.trim().slice(0, 220) + (notes.trim().length > 220 ? "…" : "") : "No notes pasted yet — Kiwi will teach from the subject pattern and topic name, then you can add class notes for extra precision.";
+  return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition:\nIn ${subject.label}, treat ${cleanTopic} as ${frame.definition}.\n\nKey ideas:\n${frame.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${frame.example}\n\nCommon mistake:\n${frame.mistake}\n\nHow to recognize it on a test:\nLook for the topic name, related vocabulary, data/diagrams, and a prompt asking you to explain, calculate, compare, or apply the idea.\n\nYour custom notes/question anchor:\n${noteFocus}`;
 }
 
 function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state = DEFAULT_STATE }) {
@@ -1067,18 +1102,19 @@ function findPracticeEntry(library, cleanTopic) {
   });
 }
 
-function buildStemMathFreeResponse(cleanTopic) {
+function buildStemMathFreeResponse(cleanTopic, notes = "") {
   const direct = findPracticeEntry(STEM_MATH_FREE_RESPONSE_LIBRARY, cleanTopic)?.[1];
   if (direct) return direct;
+  const noteFocus = notes && notes.trim() ? notes.trim().slice(0, 140) + (notes.trim().length > 140 ? "…" : "") : `the rule, formula, or quantity your class uses for ${cleanTopic}`;
   return {
-    q1: `Use a numeric example for ${cleanTopic}: start with 12 units, apply a factor of 3, then calculate the final value.`,
-    q2: `Create a second calculation for ${cleanTopic} using 4 and 8, then solve it step by step.`,
-    a1: `12 × 3 = 36; the important part is showing the setup, operation, and unit/meaning.`,
-    a2: `A strong answer includes a concrete equation with 4 and 8, the calculation, and a final interpreted result.`
+    q1: `Use this custom-topic anchor — ${noteFocus} — to set up one equation or calculation for ${cleanTopic} with numbers 12 and 3.`,
+    q2: `Create a second calculation for ${cleanTopic} using 4 and 8, then solve it step by step with units or labels.`,
+    a1: `A strong answer writes a formula/equation from the note anchor, substitutes 12 and 3, calculates a result, and labels what the result means.`,
+    a2: `A strong answer includes a concrete equation with 4 and 8, the calculation, units/labels, and a final interpreted result.`
   };
 }
 
-function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
+function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic || state.activeTopic, subjectKey, state);
   const directPractice = findPracticeEntry(PRACTICE_LIBRARY, cleanTopic);
@@ -1086,15 +1122,16 @@ function buildPracticeProblem({ subjectKey, topic, state = DEFAULT_STATE }) {
 
   const explanation = findExplanation(subjectKey, cleanTopic);
   const anchor = explanation?.title || cleanTopic;
-  const keyIdea = explanation?.keyIdeas?.[0] || `Explain the most important rule, cause, structure, or pattern in ${cleanTopic}.`;
-  const example = explanation?.example || `Create a small example where ${cleanTopic} changes the answer or interpretation.`;
+  const customNote = notes && notes.trim() ? notes.trim().slice(0, 180) + (notes.trim().length > 180 ? "…" : "") : "Add your class notes to make this custom practice more specific.";
+  const keyIdea = explanation?.keyIdeas?.[0] || `Use your notes to define ${cleanTopic}, then identify the rule, cause, structure, or pattern being tested.`;
+  const example = explanation?.example || `Use your notes/class prompt as evidence: ${customNote}`;
 
   if (STEM_SUBJECT_KEYS.has(subjectKey)) {
-    const freeResponse = buildStemMathFreeResponse(cleanTopic);
-    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.`;
+    const freeResponse = buildStemMathFreeResponse(cleanTopic, notes);
+    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.`;
   }
 
-  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.`;
+  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.`;
 }
 
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
@@ -1108,7 +1145,7 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
     "Explain": buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state }),
     "Quiz Me": `Quick Kiwi quiz for ${cleanTopic}${level}:\n\nQ1. What is the core definition or rule?\nQ2. What is one common trap students make here?\nQ3. Apply it to a tiny example from your notes.\n\nAnswer out loud first. Kiwi does not accept telepathic studying.` ,
     "Flashcards": `Flashcard starter deck for ${cleanTopic}${level}:\n\n• Term → definition\n• Process/formula → when to use it\n• Common mistake → how to avoid it\n• Example → final answer or conclusion\n\nPaw stamp goal: make 4 cards now, not 40 cards never.` ,
-    "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, state }),
+    "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, notes, state }),
     "Study Guide": `Mini study guide for ${cleanTopic}${level}:\n\n• Must-know ideas\n• Key vocabulary/formulas\n• One worked example\n• Two quiz questions\n• One common misconception\n• Confidence rating after review\n\nStart here, then mark your confidence again.` ,
     "Summarize Notes": `Summary plan for ${cleanTopic}${level}:\n\n• Big idea: write it in one sentence.\n• Details: keep only test-relevant facts.\n• Connections: link it to the previous topic.\n• Check: ask one question your teacher might ask.\n\n${noteHint}`,
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,

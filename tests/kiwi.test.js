@@ -176,18 +176,40 @@ function testCustomCommonTopicGetsRealTeaching() {
   assert.doesNotMatch(response, /topic you can understand by asking/i);
 }
 
-function testUnknownCustomTopicIsHonest() {
+function testUnknownCustomTopicGetsCustomTeachingMode() {
   const response = buildStudyResponse({
     subjectKey: "chemistry",
     action: "Explain",
     topic: "banana orbital sparkles",
-    notes: "",
+    notes: "orbital energy changes when electrons absorb light",
     confidence: "low",
     state: DEFAULT_STATE
   });
-  assert.match(response, /not in Kiwi's built-in lesson library yet/i);
+  assert.match(response, /Custom Kiwi lesson/i);
   assert.match(response, /banana orbital sparkles/i);
-  assert.doesNotMatch(response, /actual Kiwi explanation/i);
+  assert.match(response, /Working definition/i);
+  assert.match(response, /Key ideas/i);
+  assert.match(response, /Example/i);
+  assert.match(response, /Common mistake/i);
+  assert.match(response, /orbital energy changes/i);
+  assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i);
+}
+
+function testCustomStemTopicGetsMathBasedPractice() {
+  const response = buildStudyResponse({
+    subjectKey: "physics",
+    action: "Practice Problem",
+    topic: "rocket thrust",
+    notes: "force equals mass times acceleration",
+    confidence: "low",
+    state: { ...DEFAULT_STATE, activeSubject: "physics", activeTopic: "rocket thrust" }
+  });
+  assert.match(response, /rocket thrust/i);
+  assert.match(response, /Conceptual questions/i);
+  assert.match(response, /Math-based free response questions/i);
+  assert.match(response, /Show your work/i);
+  assert.match(response, /force equals mass times acceleration/i);
+  assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i);
 }
 
 function testMathTopicsAreLevelSpecific() {
@@ -243,5 +265,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /data-topic/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicIsHonest, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
