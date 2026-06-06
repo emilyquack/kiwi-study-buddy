@@ -188,10 +188,11 @@ function setupApp() {
 
   function renderSubjects() {
     els.subjectGrid.innerHTML = Object.entries(SUBJECTS).map(([key, subject]) => `
-      <button type="button" class="subject-card ${key === state.activeSubject ? "active" : ""}" data-subject="${key}" style="--subject-color: ${subject.color}">
+      <button type="button" class="subject-card ${key === state.activeSubject ? "active" : ""}" data-subject="${key}" style="--subject-color: ${subject.color}" aria-label="Open ${subject.label} study mode">
         <span class="subject-icon">${subject.icon}</span>
         <div class="subject-name">${subject.label}</div>
         <div class="subject-line">${subject.line}</div>
+        <span class="subject-cta">Open study mode →</span>
       </button>
     `).join("");
   }
@@ -228,6 +229,24 @@ function setupApp() {
     }).join("");
   }
 
+  function moveIntoStudyMode() {
+    const panel = document.querySelector("#study-panel");
+    if (!panel) return;
+    panel.classList.add("study-panel-pulse");
+    panel.focus({ preventScroll: true });
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    panel.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+    window.setTimeout(() => panel.classList.remove("study-panel-pulse"), 900);
+  }
+
+  function openStudyMode(shouldMove = true) {
+    const subject = getSubject(state.activeSubject);
+    renderActiveSubject();
+    els.output.textContent = `${subject.voice}\n\nStudy mode is open. Add a topic, paste notes if you have them, then choose a study action. Kiwi is ready.`;
+    els.bubble.textContent = `${subject.label} study mode opened. Tiny paws deployed.`;
+    if (shouldMove) moveIntoStudyMode();
+  }
+
   function renderActiveSubject() {
     const subject = getSubject(state.activeSubject);
     els.title.textContent = subject.label;
@@ -245,7 +264,7 @@ function setupApp() {
     if (!card) return;
     state.activeSubject = card.dataset.subject;
     saveState(state);
-    renderActiveSubject();
+    openStudyMode(true);
   });
 
   els.mathLevels.addEventListener("click", event => {

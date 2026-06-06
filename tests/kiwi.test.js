@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   SUBJECTS,
   DEFAULT_STATE,
@@ -48,5 +50,16 @@ function testStorageFallback() {
   assert.equal(loaded.activeSubject, "biology");
 }
 
-[testSubjectLibrary, testStudyResponse, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback].forEach(fn => fn());
+function testStudyModeEntryScaffold() {
+  const projectRoot = path.resolve(__dirname, "..");
+  const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
+  const app = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
+  assert.match(html, /id="study-panel"/);
+  assert.match(html, /tabindex="-1"/);
+  assert.match(app, /Open study mode/);
+  assert.match(app, /scrollIntoView/);
+  assert.match(app, /Study mode is open/);
+}
+
+[testSubjectLibrary, testStudyResponse, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
