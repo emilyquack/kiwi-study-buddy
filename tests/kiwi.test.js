@@ -14,6 +14,9 @@ const {
   buildSourceTaughtCustomResponse,
   buildMoodStudyResponse,
   buildBossBattleQuiz,
+  createBossBattleGame,
+  answerBossBattleQuestion,
+  buildBossBattleGameHtml,
   buildResearchDetectiveMode,
   buildPanicRescue,
   awardAchievementBadges,
@@ -727,5 +730,58 @@ function testAchievementBadgesAwardUniqueProgress() {
   assert.equal(new Set(next.badges).size, next.badges.length);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
+function testInteractiveBossBattleCreatesPlayableGameState() {
+  const game = createBossBattleGame({
+    subjectKey: "chemistry",
+    topic: "kinetics",
+    notes: "",
+    state: DEFAULT_STATE
+  });
+  assert.equal(game.mode, "interactive-boss-battle");
+  assert.equal(game.status, "active");
+  assert.equal(game.enemyHp, 3);
+  assert.equal(game.kiwiHp, 3);
+  assert.equal(game.roundIndex, 0);
+  assert.equal(game.score, 0);
+  assert.equal(game.questions.length, 3);
+  assert.match(game.enemy, /Kinetics/i);
+  game.questions.forEach(question => {
+    assert.match(question.prompt, /\?/);
+    assert.equal(question.choices.length, 3);
+    assert.equal(question.choices.filter(choice => choice.correct).length, 1);
+    assert(question.hint.length > 20);
+  });
+}
+
+function testInteractiveBossBattleAnswersUpdateHpAndRounds() {
+  const game = createBossBattleGame({ subjectKey: "biology", topic: "cell membranes", state: DEFAULT_STATE });
+  const correctIndex = game.questions[0].choices.findIndex(choice => choice.correct);
+  const first = answerBossBattleQuestion(game, correctIndex);
+  assert.equal(first.game.enemyHp, 2);
+  assert.equal(first.game.kiwiHp, 3);
+  assert.equal(first.game.roundIndex, 1);
+  assert.equal(first.game.score, 1);
+  assert.match(first.feedback, /Correct/i);
+
+  const wrongIndex = first.game.questions[1].choices.findIndex(choice => !choice.correct);
+  const second = answerBossBattleQuestion(first.game, wrongIndex);
+  assert.equal(second.game.enemyHp, 2);
+  assert.equal(second.game.kiwiHp, 2);
+  assert.equal(second.game.roundIndex, 2);
+  assert.match(second.feedback, /Kiwi hint/i);
+}
+
+function testInteractiveBossBattleHtmlHasClickableChoices() {
+  const game = createBossBattleGame({ subjectKey: "physics", topic: "forces", state: DEFAULT_STATE });
+  const html = buildBossBattleGameHtml(game, "Choose your attack!");
+  assert.match(html, /id="boss-battle-arena"/);
+  assert.match(html, /data-boss-choice/);
+  assert.match(html, /data-answer-index="0"/);
+  assert.match(html, /Enemy HP/);
+  assert.match(html, /Kiwi HP/);
+  assert.match(html, /Choose your attack!/);
+  assert.match(html, /aria-live="polite"/);
+}
+
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testInteractiveBossBattleCreatesPlayableGameState, testInteractiveBossBattleAnswersUpdateHpAndRounds, testInteractiveBossBattleHtmlHasClickableChoices, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

@@ -127,6 +127,7 @@ const DEFAULT_STATE = {
   activeMathLevel: "Algebra 1",
   activeTopic: "cell membranes",
   activeMood: "cozy",
+  bossBattle: null,
   savedTopics: [],
   badges: []
 };
@@ -1444,6 +1445,15 @@ async function buildStudyResponseWithLiveSources({ subjectKey, action, topic, no
   }
 }
 
+function escapeForHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildMoodStudyResponse(response, moodKey = "cozy", topic = "this topic") {
   const mood = MOOD_MODES[moodKey] || MOOD_MODES.cozy;
   return `${mood.prefix}\nTopic focus: ${topic}\n${mood.guidance}\n\n${response}`;
@@ -1453,6 +1463,115 @@ function getCustomOrBuiltInAnchor(subjectKey, topic, notes = "", state = DEFAULT
   const cleanTopic = normalizeTopic(topic, subjectKey, state);
   const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
   return { cleanTopic, anchor };
+}
+
+function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
+  const subject = getSubject(subjectKey);
+  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const questions = [
+    {
+      prompt: `Round 1: What is the best explanation of ${anchor.title}?`,
+      hint: anchor.overview,
+      explanation: anchor.overview,
+      choices: [
+        { text: anchor.overview, correct: true },
+        { text: `It is mainly a memorization label with no examples or clues.`, correct: false },
+        { text: `It only matters after the test, when Kiwi has already eaten the worksheet.`, correct: false }
+      ]
+    },
+    {
+      prompt: `Round 2: Which mistake should you dodge for ${anchor.title}?`,
+      hint: anchor.mistake,
+      explanation: anchor.mistake,
+      choices: [
+        { text: `Skip the setup and trust the first number you see.`, correct: false },
+        { text: anchor.mistake, correct: true },
+        { text: `Ignore vocabulary because examples always replace definitions.`, correct: false }
+      ]
+    },
+    {
+      prompt: `Round 3: What clue helps you recognize ${anchor.title} on a quiz?`,
+      hint: anchor.testCue,
+      explanation: anchor.testCue,
+      choices: [
+        { text: `Look only for the longest answer choice.`, correct: false },
+        { text: `Pick whichever option feels the most dramatic.`, correct: false },
+        { text: anchor.testCue, correct: true }
+      ]
+    }
+  ];
+  return {
+    mode: "interactive-boss-battle",
+    status: "active",
+    subjectKey,
+    topic: cleanTopic,
+    title: `${anchor.title}${level}`,
+    enemy: `${subject.icon} ${anchor.title} Gremlin`,
+    enemyHp: 3,
+    kiwiHp: 3,
+    roundIndex: 0,
+    score: 0,
+    questions
+  };
+}
+
+function answerBossBattleQuestion(game, choiceIndex) {
+  const nextGame = JSON.parse(JSON.stringify(game));
+  if (!nextGame || nextGame.status !== "active") {
+    return { game: nextGame, feedback: "This boss battle is already finished. Start a new battle when Kiwi re-equips the tiny armor." };
+  }
+  const question = nextGame.questions[nextGame.roundIndex];
+  const choice = question?.choices?.[choiceIndex];
+  if (!question || !choice) {
+    return { game: nextGame, feedback: "Kiwi could not find that attack button. Please pick one of the visible choices." };
+  }
+  const correctChoice = question.choices.find(item => item.correct);
+  let feedback;
+  if (choice.correct) {
+    nextGame.enemyHp = Math.max(0, nextGame.enemyHp - 1);
+    nextGame.score += 1;
+    feedback = `Correct hit! The ${nextGame.enemy} loses 1 HP. ${question.explanation}`;
+  } else {
+    nextGame.kiwiHp = Math.max(0, nextGame.kiwiHp - 1);
+    feedback = `Not quite — Kiwi blocks with a tiny notebook. Kiwi hint: ${question.hint} Correct answer: ${correctChoice.text}`;
+  }
+  nextGame.roundIndex += 1;
+  if (nextGame.enemyHp <= 0 || nextGame.score >= 3) {
+    nextGame.status = "won";
+    feedback += " Victory! You defeated the study gremlin.";
+  } else if (nextGame.kiwiHp <= 0 || nextGame.roundIndex >= nextGame.questions.length) {
+    nextGame.status = nextGame.score >= 2 ? "won" : "lost";
+    feedback += nextGame.status === "won" ? " Close win! Kiwi accepts this academically chaotic victory." : " The gremlin escaped with 1 tiny HP. Review the hints and rematch.";
+  }
+  return { game: nextGame, feedback };
+}
+
+function bossHearts(count) {
+  return "♥".repeat(Math.max(0, count)) || "♡";
+}
+
+function buildBossBattleGameHtml(game, feedback = "Choose your attack!") {
+  const current = game.status === "active" ? game.questions[game.roundIndex] : null;
+  const statusText = game.status === "won" ? "Victory! Kiwi bonked the boss with knowledge." : game.status === "lost" ? "Rematch ready. The gremlin escaped, but the hints are yours." : `Round ${game.roundIndex + 1} of ${game.questions.length}`;
+  const choices = current ? current.choices.map((choice, index) => `<button type="button" class="boss-choice" data-boss-choice data-answer-index="${index}"><span class="choice-label">Attack ${index + 1}</span>${escapeForHtml(choice.text)}</button>`).join("") : `<button type="button" class="boss-choice restart" data-boss-restart>Start rematch</button>`;
+  return `<section id="boss-battle-arena" class="boss-arena" aria-live="polite">
+    <div class="boss-topline">
+      <div>
+        <p class="eyebrow">Interactive Boss Battle Quiz Mode</p>
+        <h3>${escapeForHtml(game.title)}</h3>
+      </div>
+      <span class="boss-status">${escapeForHtml(statusText)}</span>
+    </div>
+    <div class="boss-hp-grid">
+      <div class="boss-hp enemy"><span>${escapeForHtml(game.enemy)}</span><strong>Enemy HP ${bossHearts(game.enemyHp)}</strong></div>
+      <div class="boss-hp kiwi"><span>Kiwi the Cat</span><strong>Kiwi HP ${bossHearts(game.kiwiHp)}</strong></div>
+      <div class="boss-score"><span>Score</span><strong>${game.score}/${game.questions.length}</strong></div>
+    </div>
+    <div class="boss-feedback">${escapeForHtml(feedback)}</div>
+    ${current ? `<h4>${escapeForHtml(current.prompt)}</h4>` : `<h4>${game.status === "won" ? "Victory loot unlocked: Boss Battle Bean 👾" : "Ready for a rematch?"}</h4>`}
+    <div class="boss-choice-grid">${choices}</div>
+  </section>`;
 }
 
 function buildBossBattleQuiz({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
@@ -1570,17 +1689,16 @@ function setupApp() {
   let state = loadState();
 
   function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+    return escapeForHtml(value);
   }
 
   function renderOutput(value) {
     const escaped = escapeHtml(value);
     els.output.innerHTML = escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+  }
+
+  function renderBossBattleGame(game, feedback = "Choose your attack!") {
+    els.output.innerHTML = buildBossBattleGameHtml(game, feedback);
   }
 
   function getConfidence() {
@@ -1624,7 +1742,23 @@ function setupApp() {
     state = awardAchievementBadges(state, { action, topic, usedSources, mood });
     saveState(state);
     renderBadgeShelf();
-    els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : action === "Boss Battle" ? "Boss Battle loaded. Kiwi equips tiny armor." : action === "Research Detective" ? "Detective mode. Kiwi found the magnifying glass." : action === "Panic Button" ? "Panic shrunk. Tiny problem now." : "Teaching mode. Kiwi has seized the chalkboard.";
+    els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : action === "Research Detective" ? "Detective mode. Kiwi found the magnifying glass." : action === "Panic Button" ? "Panic shrunk. Tiny problem now." : "Teaching mode. Kiwi has seized the chalkboard.";
+  }
+
+  function startBossBattle() {
+    const topic = getCurrentTopic();
+    const game = createBossBattleGame({
+      subjectKey: state.activeSubject,
+      topic,
+      notes: els.notes.value,
+      state
+    });
+    state.bossBattle = game;
+    state = awardAchievementBadges(state, { action: "Boss Battle", topic, mood: state.activeMood });
+    saveState(state);
+    renderBossBattleGame(game, "Choose your attack! Correct answers damage the gremlin; misses cost Kiwi HP.");
+    renderBadgeShelf();
+    els.bubble.textContent = "Boss Battle is interactive now. Pick an attack button!";
   }
 
   function renderSubjects() {
@@ -1767,7 +1901,7 @@ function setupApp() {
 
   els.teachTopic.addEventListener("click", () => runLesson("Explain"));
   els.practiceTopic.addEventListener("click", () => runLesson("Practice Problem"));
-  els.bossBattle?.addEventListener("click", () => runLesson("Boss Battle"));
+  els.bossBattle?.addEventListener("click", startBossBattle);
   els.researchDetective?.addEventListener("click", () => runLesson("Research Detective"));
   els.panicButton?.addEventListener("click", () => runLesson("Panic Button"));
   els.moodMode?.addEventListener("change", () => {
@@ -1782,6 +1916,26 @@ function setupApp() {
     if (!button) return;
     await runLesson(button.dataset.action);
     els.bubble.textContent = `${button.dataset.action} mode. Kiwi is academically suspicious.`;
+  });
+
+  els.output.addEventListener("click", event => {
+    const choice = event.target.closest("[data-boss-choice]");
+    const restart = event.target.closest("[data-boss-restart]");
+    if (restart) {
+      startBossBattle();
+      return;
+    }
+    if (!choice || !state.bossBattle) return;
+    const answerIndex = Number(choice.dataset.answerIndex);
+    const result = answerBossBattleQuestion(state.bossBattle, answerIndex);
+    state.bossBattle = result.game;
+    if (result.game.status === "won") {
+      state = awardAchievementBadges(state, { action: "Boss Battle", topic: result.game.topic, mood: state.activeMood });
+    }
+    saveState(state);
+    renderBossBattleGame(result.game, result.feedback);
+    renderBadgeShelf();
+    els.bubble.textContent = result.game.status === "active" ? "Next attack ready. Kiwi is bouncing." : result.game.status === "won" ? "Victory! Boss Battle Bean energy achieved." : "Rematch? Kiwi has taped the notebook shield back together.";
   });
 
   els.saveTopic.addEventListener("click", () => {
@@ -1835,5 +1989,5 @@ if (typeof document !== "undefined") {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { SUBJECTS, DEFAULT_STATE, FUN_FEATURES, MOOD_MODES, BADGE_LIBRARY, buildStudyResponse, buildPracticeProblem, buildSourceTaughtCustomResponse, buildMoodStudyResponse, buildBossBattleQuiz, buildResearchDetectiveMode, buildPanicRescue, awardAchievementBadges, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
+  module.exports = { SUBJECTS, DEFAULT_STATE, FUN_FEATURES, MOOD_MODES, BADGE_LIBRARY, buildStudyResponse, buildPracticeProblem, buildSourceTaughtCustomResponse, buildMoodStudyResponse, buildBossBattleQuiz, createBossBattleGame, answerBossBattleQuestion, buildBossBattleGameHtml, buildResearchDetectiveMode, buildPanicRescue, awardAchievementBadges, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
 }
