@@ -1271,6 +1271,72 @@ function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_S
   return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.${sourceBlock}`;
 }
 
+function compactNoteAnchor(notes, fallback) {
+  const cleanNotes = notes && notes.trim();
+  if (!cleanNotes) return fallback;
+  return cleanNotes.slice(0, 180) + (cleanNotes.length > 180 ? "…" : "");
+}
+
+function buildStudyContentAnchor({ subjectKey, cleanTopic, notes = "" }) {
+  const subject = getSubject(subjectKey);
+  const explanation = findExplanation(subjectKey, cleanTopic);
+  const customNote = compactNoteAnchor(notes, `Add class notes to make Kiwi's custom ${subject.label} content more specific.`);
+
+  if (explanation) {
+    return {
+      title: explanation.title,
+      overview: explanation.overview,
+      keyIdeas: explanation.keyIdeas,
+      example: explanation.example,
+      mistake: explanation.mistake,
+      testCue: explanation.testCue,
+      isCustom: false,
+      customNote
+    };
+  }
+
+  return {
+    title: cleanTopic,
+    overview: `Custom topic anchor: ${customNote}`,
+    keyIdeas: [
+      `Define ${cleanTopic} using the exact rule, process, claim, or structure from your class materials.`,
+      `Connect the topic to one example so it is not just vocabulary floating in space.`,
+      `Name the clue that tells you a question is testing ${cleanTopic}.`
+    ],
+    example: `Use this notes anchor as Kiwi's starting example: ${customNote}`,
+    mistake: `Do not memorize ${cleanTopic} as isolated words. Tie each detail to the class note, formula, evidence, or example that makes it true.`,
+    testCue: `Look for your teacher's keywords, given data, scenario clues, or prompt language that point back to ${cleanTopic}.`,
+    isCustom: true,
+    customNote
+  };
+}
+
+function buildKiwiFlashcards({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
+  const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const ideaOne = anchor.keyIdeas[0];
+  const ideaTwo = anchor.keyIdeas[1] || anchor.keyIdeas[0];
+  const ideaThree = anchor.keyIdeas[2] || anchor.keyIdeas[0];
+  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  const customLine = anchor.isCustom ? `\nCustom topic anchor:\n${anchor.customNote}\n` : "";
+
+  return `Kiwi-generated flashcards: ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nCard 1\nFront: What is ${anchor.title}?\nBack: ${anchor.overview}\n\nCard 2\nFront: What is one must-know idea for ${anchor.title}?\nBack: ${ideaOne}\n\nCard 3\nFront: What second clue or rule should you remember?\nBack: ${ideaTwo}\n\nCard 4\nFront: How can ${anchor.title} show up in an example?\nBack: ${anchor.example}\n\nCard 5\nFront: What common mistake should you avoid?\nBack: ${anchor.mistake}\n\nCard 6\nFront: How will Kiwi recognize this on a quiz or test?\nBack: ${anchor.testCue}\n\nBonus paw card\nFront: What is the tiny one-sentence summary?\nBack: ${ideaThree}\n${customLine}\nKiwi check: this deck is already generated for the topic; you can copy it straight into cards and edit wording if your class uses a special definition.${sourceBlock}`;
+}
+
+function buildKiwiStudyGuide({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
+  const subject = getSubject(subjectKey);
+  const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  const mustKnow = anchor.keyIdeas.map((idea, index) => `${index + 1}. ${idea}`).join("\n");
+  const customSection = anchor.isCustom ? `\n\nCustom topic anchor\n${anchor.customNote}` : "";
+  const stemCheck = STEM_SUBJECT_KEYS.has(subjectKey)
+    ? `Set up one calculation, formula, graph, unit conversion, or data-based step connected to ${anchor.title}. Show your work and label units when possible.`
+    : `Explain ${anchor.title} in a few sentences, then support it with one example, piece of evidence, or scenario clue.`;
+
+  return `Kiwi-generated study guide: ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nSubject focus: ${subject.label}\n\nBig idea\n${anchor.overview}\n\nMust-know ideas\n${mustKnow}\n\nKey vocabulary / formulas / cues\n• Main term: ${anchor.title}\n• Recognition cue: ${anchor.testCue}\n• Class-note cue: ${anchor.customNote}\n\nWorked example\n${anchor.example}\n\nCommon mistake\n${anchor.mistake}\n\nQuick check\n1. Define ${anchor.title} without looking.\n2. ${stemCheck}\n3. Explain the common mistake and how to fix it.\n\n7-minute review plan\n1. Read the big idea once.\n2. Cover the Must-know ideas and recite them.\n3. Redo the worked example or make a parallel example.\n4. Answer the Quick check.\n5. Mark confidence: low, okay, or strong.${customSection}\n\nKiwi check: this is a filled-in study guide for ${anchor.title}, not a blank template for you to generate alone.${sourceBlock}`;
+}
+
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic, subjectKey, state);
@@ -1281,9 +1347,9 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
   const templates = {
     "Explain": buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state }),
     "Quiz Me": `Quick Kiwi quiz for ${cleanTopic}${level}:\n\nQ1. What is the core definition or rule?\nQ2. What is one common trap students make here?\nQ3. Apply it to a tiny example from your notes.\n\nAnswer out loud first. Kiwi does not accept telepathic studying.` ,
-    "Flashcards": `Flashcard starter deck for ${cleanTopic}${level}:\n\n• Term → definition\n• Process/formula → when to use it\n• Common mistake → how to avoid it\n• Example → final answer or conclusion\n\nPaw stamp goal: make 4 cards now, not 40 cards never.` ,
+    "Flashcards": buildKiwiFlashcards({ subjectKey, cleanTopic, notes, state }),
     "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, notes, state }),
-    "Study Guide": `Mini study guide for ${cleanTopic}${level}:\n\n• Must-know ideas\n• Key vocabulary/formulas\n• One worked example\n• Two quiz questions\n• One common misconception\n• Confidence rating after review\n\nStart here, then mark your confidence again.` ,
+    "Study Guide": buildKiwiStudyGuide({ subjectKey, cleanTopic, notes, state }),
     "Summarize Notes": `Summary plan for ${cleanTopic}${level}:\n\n• Big idea: write it in one sentence.\n• Details: keep only test-relevant facts.\n• Connections: link it to the previous topic.\n• Check: ask one question your teacher might ask.\n\n${noteHint}`,
     "Find Sources": buildSourceResponse({ subjectKey, cleanTopic }),
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,

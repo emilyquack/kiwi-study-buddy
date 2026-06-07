@@ -391,6 +391,92 @@ function testChemistryKineticsIsBuiltInSubtopic() {
   assert.match(sources, /Khan Academy/i);
 }
 
+function getBuiltInTopicCases() {
+  return Object.entries(SUBJECTS).flatMap(([subjectKey, subject]) => {
+    if (subjectKey === "math") {
+      return Object.entries(subject.topicsByLevel).flatMap(([level, topics]) =>
+        topics.map(topic => ({ subjectKey, topic, label: `${level} ${topic}`, state: { ...DEFAULT_STATE, activeSubject: "math", activeMathLevel: level, activeTopic: topic } }))
+      );
+    }
+    return subject.topics.map(topic => ({ subjectKey, topic, label: `${subject.label} ${topic}`, state: { ...DEFAULT_STATE, activeSubject: subjectKey, activeTopic: topic } }));
+  });
+}
+
+function testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic() {
+  getBuiltInTopicCases().forEach(({ subjectKey, topic, label, state }) => {
+    const response = buildStudyResponse({
+      subjectKey,
+      action: "Flashcards",
+      topic,
+      notes: "",
+      confidence: "low",
+      state
+    });
+    assert.match(response, /Kiwi-generated flashcards/i, `${label} needs Kiwi-generated flashcards`);
+    assert.match(response, /Card 1/i, `${label} needs numbered cards`);
+    assert.match(response, /Front:/i, `${label} needs flashcard fronts`);
+    assert.match(response, /Back:/i, `${label} needs flashcard backs`);
+    assert.match(response, new RegExp(topic.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), `${label} should mention the topic`);
+    assert.doesNotMatch(response, /Term → definition/i, `${label} should not use the old flashcard placeholder`);
+    assert.doesNotMatch(response, /make 4 cards now, not 40 cards never/i, `${label} should not ask the learner to generate the deck alone`);
+  });
+}
+
+function testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic() {
+  getBuiltInTopicCases().forEach(({ subjectKey, topic, label, state }) => {
+    const response = buildStudyResponse({
+      subjectKey,
+      action: "Study Guide",
+      topic,
+      notes: "",
+      confidence: "low",
+      state
+    });
+    assert.match(response, /Kiwi-generated study guide/i, `${label} needs a Kiwi-generated study guide`);
+    assert.match(response, /Big idea/i, `${label} needs a big idea section`);
+    assert.match(response, /Must-know ideas/i, `${label} needs must-know ideas`);
+    assert.match(response, /Worked example/i, `${label} needs a worked example`);
+    assert.match(response, /Common mistake/i, `${label} needs misconception help`);
+    assert.match(response, /Quick check/i, `${label} needs a quick check`);
+    assert.match(response, new RegExp(topic.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), `${label} should mention the topic`);
+    assert.doesNotMatch(response, /Must-know ideas\n• Key vocabulary\/formulas\n• One worked example/i, `${label} should not use the old study-guide placeholder`);
+    assert.doesNotMatch(response, /Start here, then mark your confidence again/i, `${label} should not be a blank scaffold`);
+  });
+}
+
+function testFlashcardsAndStudyGuidesWorkForCustomTopics() {
+  const state = { ...DEFAULT_STATE, activeSubject: "chemistry", activeTopic: "banana orbital sparkles" };
+  const flashcards = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Flashcards",
+    topic: "banana orbital sparkles",
+    notes: "orbital energy changes when electrons absorb light",
+    confidence: "low",
+    state
+  });
+  assert.match(flashcards, /Kiwi-generated flashcards: banana orbital sparkles/i);
+  assert.match(flashcards, /orbital energy changes when electrons absorb light/i);
+  assert.match(flashcards, /Card 1/i);
+  assert.match(flashcards, /Front:/i);
+  assert.match(flashcards, /Back:/i);
+  assert.doesNotMatch(flashcards, /Term → definition/i);
+
+  const studyGuide = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Study Guide",
+    topic: "banana orbital sparkles",
+    notes: "orbital energy changes when electrons absorb light",
+    confidence: "low",
+    state
+  });
+  assert.match(studyGuide, /Kiwi-generated study guide: banana orbital sparkles/i);
+  assert.match(studyGuide, /Custom topic anchor/i);
+  assert.match(studyGuide, /orbital energy changes when electrons absorb light/i);
+  assert.match(studyGuide, /Big idea/i);
+  assert.match(studyGuide, /Quick check/i);
+  assert.doesNotMatch(studyGuide, /Mini study guide/i);
+}
+
 function testMathTopicsAreLevelSpecific() {
   const algebraTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Algebra 1", activeTopic: "linear equations" });
   assert.deepEqual(algebraTopics, ["linear equations", "systems of equations", "inequalities", "functions", "exponents"]);
@@ -447,5 +533,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /rel="noopener noreferrer"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testChemistryKineticsIsBuiltInSubtopic, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
