@@ -739,11 +739,11 @@ function testInteractiveBossBattleCreatesPlayableGameState() {
   });
   assert.equal(game.mode, "interactive-boss-battle");
   assert.equal(game.status, "active");
-  assert.equal(game.enemyHp, 3);
+  assert.equal(game.enemyHp, 5);
   assert.equal(game.kiwiHp, 3);
   assert.equal(game.roundIndex, 0);
   assert.equal(game.score, 0);
-  assert.equal(game.questions.length, 3);
+  assert.equal(game.questions.length, 5);
   assert.match(game.enemy, /Kinetics/i);
   game.questions.forEach(question => {
     assert.match(question.prompt, /\?/);
@@ -753,11 +753,29 @@ function testInteractiveBossBattleCreatesPlayableGameState() {
   });
 }
 
+function testBossBattleQuestionsAreDiverseAndTopicRelevant() {
+  const game = createBossBattleGame({ subjectKey: "chemistry", topic: "kinetics", state: DEFAULT_STATE });
+  assert.deepEqual(game.questions.map(question => question.kind), ["definition", "scenario", "misconception", "calculation", "test-cue"]);
+  const prompts = game.questions.map(question => question.prompt).join("\n");
+  assert.match(prompts, /scenario|student|lab|data|changes/i);
+  assert.match(prompts, /calculation|rate|doubles|halved|formula/i);
+  assert.match(prompts, /trap|mistake|wrong/i);
+
+  const oldGenericDistractors = /memorization label|only matters after the test|longest answer choice|most dramatic|Ignore vocabulary|Skip the setup/i;
+  const topicWords = /rate|reaction|concentration|catalyst|activation|mechanism|coefficient|exponent|temperature|half-life|data|equilibrium|law/i;
+  const wrongChoices = game.questions.flatMap(question => question.choices.filter(choice => !choice.correct).map(choice => choice.text));
+  assert.equal(wrongChoices.length, 10);
+  wrongChoices.forEach(choice => {
+    assert.doesNotMatch(choice, oldGenericDistractors);
+    assert.match(choice, topicWords, `Distractor should be a tricky kinetics-related answer: ${choice}`);
+  });
+}
+
 function testInteractiveBossBattleAnswersUpdateHpAndRounds() {
   const game = createBossBattleGame({ subjectKey: "biology", topic: "cell membranes", state: DEFAULT_STATE });
   const correctIndex = game.questions[0].choices.findIndex(choice => choice.correct);
   const first = answerBossBattleQuestion(game, correctIndex);
-  assert.equal(first.game.enemyHp, 2);
+  assert.equal(first.game.enemyHp, 4);
   assert.equal(first.game.kiwiHp, 3);
   assert.equal(first.game.roundIndex, 1);
   assert.equal(first.game.score, 1);
@@ -765,7 +783,7 @@ function testInteractiveBossBattleAnswersUpdateHpAndRounds() {
 
   const wrongIndex = first.game.questions[1].choices.findIndex(choice => !choice.correct);
   const second = answerBossBattleQuestion(first.game, wrongIndex);
-  assert.equal(second.game.enemyHp, 2);
+  assert.equal(second.game.enemyHp, 4);
   assert.equal(second.game.kiwiHp, 2);
   assert.equal(second.game.roundIndex, 2);
   assert.match(second.feedback, /Kiwi hint/i);
@@ -783,5 +801,5 @@ function testInteractiveBossBattleHtmlHasClickableChoices() {
   assert.match(html, /aria-live="polite"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testInteractiveBossBattleCreatesPlayableGameState, testInteractiveBossBattleAnswersUpdateHpAndRounds, testInteractiveBossBattleHtmlHasClickableChoices, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testInteractiveBossBattleCreatesPlayableGameState, testBossBattleQuestionsAreDiverseAndTopicRelevant, testInteractiveBossBattleAnswersUpdateHpAndRounds, testInteractiveBossBattleHtmlHasClickableChoices, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

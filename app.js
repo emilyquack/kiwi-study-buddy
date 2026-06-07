@@ -1465,39 +1465,76 @@ function getCustomOrBuiltInAnchor(subjectKey, topic, notes = "", state = DEFAULT
   return { cleanTopic, anchor };
 }
 
+function compactBossChoice(text, limit = 180) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
+}
+
+function makeBossChoice(text, correct = false) {
+  return { text: compactBossChoice(text), correct };
+}
+
 function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
   const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const ideaOne = anchor.keyIdeas[0] || anchor.overview;
+  const ideaTwo = anchor.keyIdeas[1] || anchor.example;
+  const ideaThree = anchor.keyIdeas[2] || anchor.testCue;
   const questions = [
     {
-      prompt: `Round 1: What is the best explanation of ${anchor.title}?`,
+      kind: "definition",
+      prompt: `Round 1 — Definition Strike: Which answer best explains ${anchor.title}?`,
       hint: anchor.overview,
       explanation: anchor.overview,
       choices: [
-        { text: anchor.overview, correct: true },
-        { text: `It is mainly a memorization label with no examples or clues.`, correct: false },
-        { text: `It only matters after the test, when Kiwi has already eaten the worksheet.`, correct: false }
+        makeBossChoice(anchor.overview, true),
+        makeBossChoice(`${anchor.title} only means ${ideaOne}; ${ideaTwo} is not part of the topic.`),
+        makeBossChoice(`${anchor.title} predicts the final answer without using evidence such as ${anchor.testCue}.`)
       ]
     },
     {
-      prompt: `Round 2: Which mistake should you dodge for ${anchor.title}?`,
+      kind: "scenario",
+      prompt: `Round 2 — Scenario Dodge: Which mini-scenario actually fits ${anchor.title}?`,
+      hint: anchor.example,
+      explanation: anchor.example,
+      choices: [
+        makeBossChoice(anchor.example, true),
+        makeBossChoice(`A student sees ${ideaOne} but ignores this required clue: ${ideaTwo}.`),
+        makeBossChoice(`A lab report mentions ${anchor.title}, but the student explains the opposite trap: ${anchor.mistake}`)
+      ]
+    },
+    {
+      kind: "misconception",
+      prompt: `Round 3 — Trap Spell: Which statement is the wrong idea Kiwi should block?`,
       hint: anchor.mistake,
       explanation: anchor.mistake,
       choices: [
-        { text: `Skip the setup and trust the first number you see.`, correct: false },
-        { text: anchor.mistake, correct: true },
-        { text: `Ignore vocabulary because examples always replace definitions.`, correct: false }
+        makeBossChoice(anchor.mistake, true),
+        makeBossChoice(`Use ${ideaOne} together with ${ideaTwo} before deciding what ${anchor.title} means.`),
+        makeBossChoice(`Check ${anchor.testCue} before trusting a shortcut about ${anchor.title}.`)
       ]
     },
     {
-      prompt: `Round 3: What clue helps you recognize ${anchor.title} on a quiz?`,
+      kind: "calculation",
+      prompt: `Round 4 — Evidence/Calculation Strike: Which move uses ${anchor.title} correctly with data, examples, or source evidence?`,
+      hint: anchor.example,
+      explanation: anchor.example,
+      choices: [
+        makeBossChoice(anchor.example, true),
+        makeBossChoice(`Keep the result unchanged even when the ${anchor.title} evidence changes: ${ideaOne}.`),
+        makeBossChoice(`Use a nearby shortcut instead of the class/source evidence: ${anchor.mistake}`)
+      ]
+    },
+    {
+      kind: "test-cue",
+      prompt: `Round 5 — Test-Cue Finisher: What clue says the question is really testing ${anchor.title}?`,
       hint: anchor.testCue,
       explanation: anchor.testCue,
       choices: [
-        { text: `Look only for the longest answer choice.`, correct: false },
-        { text: `Pick whichever option feels the most dramatic.`, correct: false },
-        { text: anchor.testCue, correct: true }
+        makeBossChoice(anchor.testCue, true),
+        makeBossChoice(`Only look for the word ${anchor.title}; ignore details like ${ideaThree}.`),
+        makeBossChoice(`Pick the answer that repeats ${anchor.title}, even if it contradicts ${anchor.mistake}`)
       ]
     }
   ];
@@ -1508,7 +1545,7 @@ function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_S
     topic: cleanTopic,
     title: `${anchor.title}${level}`,
     enemy: `${subject.icon} ${anchor.title} Gremlin`,
-    enemyHp: 3,
+    enemyHp: questions.length,
     kiwiHp: 3,
     roundIndex: 0,
     score: 0,
@@ -1537,7 +1574,7 @@ function answerBossBattleQuestion(game, choiceIndex) {
     feedback = `Not quite — Kiwi blocks with a tiny notebook. Kiwi hint: ${question.hint} Correct answer: ${correctChoice.text}`;
   }
   nextGame.roundIndex += 1;
-  if (nextGame.enemyHp <= 0 || nextGame.score >= 3) {
+  if (nextGame.enemyHp <= 0 || nextGame.score >= nextGame.questions.length) {
     nextGame.status = "won";
     feedback += " Victory! You defeated the study gremlin.";
   } else if (nextGame.kiwiHp <= 0 || nextGame.roundIndex >= nextGame.questions.length) {
@@ -1580,7 +1617,9 @@ function buildBossBattleQuiz({ subjectKey, topic, notes = "", state = DEFAULT_ST
   const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
   const enemy = `${subject.icon} ${anchor.title} Gremlin`;
   const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : buildInlineSourceBlock(subjectKey, cleanTopic);
-  return `Boss Battle Quiz Mode: ${anchor.title}${level}\n\nEnemy: ${enemy}\nHP: 5 hearts ♥ ♥ ♥ ♥ ♥\nWin condition: answer 3 rounds. Wrong answer? Kiwi gives a hint instead of emotional damage.\n\nRound 1 — Definition strike\nWhat is ${anchor.title}?\nKiwi hint: ${anchor.overview}\n\nRound 2 — Trap dodge\nWhat common mistake should you avoid?\nKiwi hint: ${anchor.mistake}\n\nRound 3 — Evidence spell\nUse one example, formula, source detail, or scenario clue to prove this is about ${anchor.title}.\nKiwi hint: ${anchor.example}\n\nVictory loot\n• Badge chance: Boss Battle Bean 👾\n• Tiny reward: ${anchor.testCue}\n• Final move: explain ${anchor.title} out loud in 20 seconds.${sourceBlock}`;
+  const game = createBossBattleGame({ subjectKey, topic: cleanTopic, notes, state });
+  const roundPreview = game.questions.map((question, index) => `Round ${index + 1} — ${question.kind}\n${question.prompt}\nKiwi hint: ${question.hint}`).join("\n\n");
+  return `Boss Battle Quiz Mode: ${anchor.title}${level}\n\nEnemy: ${enemy}\nHP: ${game.enemyHp} hearts ♥ ♥ ♥ ♥ ♥\nWin condition: beat ${game.questions.length} diversified rounds. Wrong answer? Kiwi gives a hint instead of emotional damage.\n\n${roundPreview}\n\nVictory loot\n• Badge chance: Boss Battle Bean 👾\n• Tiny reward: ${anchor.testCue}\n• Final move: explain ${anchor.title} out loud in 20 seconds.${sourceBlock}`;
 }
 
 function buildResearchDetectiveMode({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
