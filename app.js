@@ -17,7 +17,7 @@ const SUBJECTS = {
     color: "#E5D4F5",
     accessory: "🥽 Safety goggles on; unit chaos off",
     line: "Atoms, bonding, measurements, stoichiometry, molarity, acids/bases, equilibrium, and kinetics.",
-    topics: ["stoichiometry", "molarity", "significant figures", "periodic trends", "acids and bases", "equilibrium"],
+    topics: ["stoichiometry", "molarity", "significant figures", "periodic trends", "acids and bases", "equilibrium", "kinetics"],
     tools: ["Explain", "Practice Problem", "Unit Check", "Flashcards", "Study Guide", "Summarize Notes", "Find Sources"],
     voice: "Chemistry mode. Before we do math crimes, we write the units."
   },
@@ -240,6 +240,15 @@ const EXPLANATION_LIBRARY = {
       example: "If extra reactant is added, the system often shifts toward products to use some of that added reactant.",
       mistake: "Equal rates do not mean equal concentrations. Products and reactants can have different amounts at equilibrium.",
       testCue: "Watch for K, Q, shift left/right, stress, concentration, pressure, and temperature changes."
+    },
+    {
+      aliases: ["kinetics", "chemical kinetics", "reaction rates", "reaction rate", "rate law", "rate laws", "activation energy", "arrhenius equation", "reaction mechanisms"],
+      title: "Kinetics",
+      overview: "Kinetics studies reaction rates: how fast reactants turn into products and what factors make that speed change. It connects concentration, temperature, catalysts, activation energy, and reaction mechanisms to measurable rate data.",
+      keyIdeas: ["Reaction rate measures how concentration changes over time, such as −Δ[A]/Δt or Δ[product]/Δt.", "A rate law links rate to reactant concentrations, often in the form rate = k[A]^m[B]^n; the exponents come from experimental data, not from balanced-equation coefficients unless the step is elementary.", "Higher temperature or a catalyst can increase rate by helping more particles overcome activation energy; catalysts speed up both forward and reverse reactions without changing equilibrium."],
+      example: "If a reaction has rate = k[A]^2 and [A] doubles, the rate becomes 2^2 = 4 times faster. If [A] is halved, the rate becomes (1/2)^2 = 1/4 as fast.",
+      mistake: "Do not assume coefficients in the overall balanced equation are the rate-law exponents. For most mechanisms, rate laws must come from experimental initial-rate data or an elementary rate-determining step.",
+      testCue: "Look for initial rates, rate laws, reaction orders, k, concentration-versus-time data, half-life, activation energy, catalysts, mechanisms, or slow-step language."
     }
   ],
   physics: [
@@ -793,6 +802,32 @@ const SOURCE_LIBRARY = {
           note: "Quick reference for terminology and examples; cross-check with your class/textbook rules."
         }
       ]
+    },
+    {
+      aliases: ["kinetics", "chemical kinetics", "reaction rates", "reaction rate", "rate law", "rate laws", "activation energy", "arrhenius equation", "reaction mechanisms"],
+      title: "Kinetics",
+      sources: [
+        {
+          label: "OpenStax Chemistry 2e — Chemical Reaction Rates",
+          url: "https://openstax.org/books/chemistry-2e/pages/12-1-chemical-reaction-rates",
+          note: "Textbook section defining reaction rates and concentration-over-time rate calculations."
+        },
+        {
+          label: "OpenStax Chemistry 2e — Rate Laws",
+          url: "https://openstax.org/books/chemistry-2e/pages/12-3-rate-laws",
+          note: "Textbook section on rate laws, reaction order, and rate constants."
+        },
+        {
+          label: "Khan Academy — Kinetics",
+          url: "https://www.khanacademy.org/science/chemistry/chem-kinetics",
+          note: "Student-friendly lessons and worked examples for rates, rate laws, and mechanisms."
+        },
+        {
+          label: "Wikipedia — Chemical kinetics",
+          url: "https://en.wikipedia.org/wiki/Chemical_kinetics",
+          note: "Quick orientation source for vocabulary and scope; verify details with class materials."
+        }
+      ]
     }
   ]
 };
@@ -925,6 +960,7 @@ function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, 
 const PRACTICE_LIBRARY = {
   stoichiometry: `Kiwi-generated practice: Stoichiometry\n\nConceptual questions\n1. Why must a stoichiometry problem start with a balanced chemical equation?\n2. What is the difference between a coefficient and a subscript?\n\nMath-based free response questions\n1. Balanced equation: 2 H2 + O2 → 2 H2O\nIf you start with 4.00 g of H2 and excess O2, how many grams of H2O can form? Show your work with the full grams → moles → mole ratio → grams path.\n2. Balanced equation: N2 + 3 H2 → 2 NH3\nIf 6.0 mol H2 reacts with excess N2, how many mol NH3 can form? Show your work and identify the mole ratio.\n\nTry first, then check below. Tiny paws over the answer key until you attempt it.\n\nAnswer key\nConceptual 1. The balanced equation gives the mole ratios; without it, the recipe is wrong.\nConceptual 2. Coefficients compare amounts of substances in a reaction; subscripts count atoms inside one formula.\nFree response 1. 4.00 g H2 × (1 mol H2 / 2.016 g) × (2 mol H2O / 2 mol H2) × (18.016 g H2O / 1 mol) ≈ 35.7 g H2O.\nFree response 2. 6.0 mol H2 × (2 mol NH3 / 3 mol H2) = 4.0 mol NH3.\n\nKiwi check: the balanced equation gives the mole ratio, not the subscripts.`,
   molarity: `Kiwi-generated practice: Molarity\n\nConceptual questions\n1. What does molarity measure in a solution?\n2. Why does volume usually need to be converted from mL to L before calculating molarity?\n\nMath-based free response questions\n1. You dissolve 0.75 mol NaCl to make 3.0 L of solution. What is the molarity? Show your work.\n2. How many moles of glucose are in 250 mL of a 0.400 M glucose solution? Show your work with the liter conversion.\n\nAnswer key\nConceptual 1. Molarity is moles of solute per liter of solution.\nConceptual 2. Molarity's unit is mol/L, so mL must become L to match the formula.\nFree response 1. M = 0.75 mol ÷ 3.0 L = 0.25 M.\nFree response 2. 250 mL = 0.250 L, so moles = 0.400 M × 0.250 L = 0.100 mol.\n\nKiwi check: milliliters must become liters before the math goblins touch it.`,
+  "kinetics chemical kinetics reaction rates reaction rate rate law rate laws activation energy arrhenius equation reaction mechanisms": `Kiwi-generated practice: Kinetics\n\nConceptual questions\n1. What does a reaction rate measure, and why is it usually written as a concentration change over time?\n2. Why can a catalyst change the rate without changing the final equilibrium position?\n\nMath-based free response questions\n1. A reaction has rate = k[A]^2. If [A] changes from 0.20 M to 0.40 M, by what factor does the rate change? Show your work.\n2. Initial-rate data for A → products: Trial 1 has [A] = 0.10 M and rate = 0.020 M/s. Trial 2 has [A] = 0.20 M and rate = 0.080 M/s. Determine the order in A and calculate k using Trial 1. Show your work with units.\n\nAnswer key\nConceptual 1. Rate measures how fast reactant or product concentration changes, such as −Δ[A]/Δt or Δ[P]/Δt.\nConceptual 2. A catalyst lowers activation energy or provides an alternate pathway, so more collisions succeed per second; it does not change ΔG or K, so equilibrium composition stays the same.\nFree response 1. [A] doubles, and the reaction is second order in A, so the rate changes by 2^2 = 4. The rate is 4 times faster.\nFree response 2. Doubling [A] makes rate quadruple, so 2^n = 4 and n = 2. For rate = k[A]^2, k = rate/[A]^2 = 0.020/(0.10)^2 = 2.0 M^-1 s^-1.\n\nKiwi check: rate-law exponents come from data unless the step is elementary; do not steal them from the overall balanced equation.`,
   "significant figures significant figure sig figs sig fig sigfigs significant digits significiant figures significiant figure signficant figures": `Kiwi-generated practice: Significant figures\n\nConceptual questions\n1. Why do significant figures matter when reporting lab measurements?\n2. Is the zero in 0.00450 significant? Explain which zeros count and which zeros only place the decimal.\n\nMath-based free response questions\n1. Count significant figures: 0.00450 has how many significant figures? Then round 0.00450 to 2 significant figures. Show your work.\n2. Apply the operation rules: calculate 12.40 + 0.3 and 4.20 × 3.1. Round each final answer correctly and explain whether you used decimal places or fewest significant figures. Show your work.\n\nAnswer key\nConceptual 1. Significant figures show measurement precision, so the final answer should not claim more precision than the measured data supports.\nConceptual 2. Leading zeros are not significant; captive zeros and decimal trailing zeros after a measured nonzero digit are significant. In 0.00450, the two zeros before 4 are placeholders, while the final zero after 5 is significant.\nFree response 1. 0.00450 has 3 significant figures: 4, 5, and the final 0. Rounded to 2 significant figures, 0.00450 becomes 0.0045.\nFree response 2. Addition/subtraction uses decimal places: 12.40 + 0.3 = 12.7 because the least precise term has 1 decimal place. Multiplication/division uses fewest significant figures: 4.20 × 3.1 = 13 because 13.02 rounds to 2 significant figures.\n\nKiwi check: addition/subtraction = decimal places; multiplication/division = fewest significant figures. Tiny measurement paws, no fake precision.`,
   "cell membranes": `Kiwi-generated practice: Cell membranes\n\nConceptual questions\n1. What does selectively permeable mean?\n2. Why do ions usually need transport proteins to cross a membrane?\n\nFree response questions\n1. A cell is placed in a very salty solution. Predict the direction water moves and explain why.\n2. Compare oxygen crossing the phospholipid bilayer with sodium ions crossing it. Use membrane structure in your answer.\n\nAnswer key\nConceptual 1. Some substances cross easily, while others are blocked or need help.\nConceptual 2. Ions are charged, so the hydrophobic membrane interior repels them unless a protein channel or pump helps.\nFree response 1. Water moves out of the cell by osmosis because the outside has higher solute concentration.\nFree response 2. Oxygen is small and nonpolar, so it can pass through the hydrophobic bilayer; sodium is charged and needs a protein channel.`,
   derivatives: `Kiwi-generated practice: Derivatives\n\nConceptual questions\n1. What does a derivative measure at one point?\n2. How is a derivative different from an average rate of change?\n\nMath-based free response questions\n1. Find f′(x) if f(x) = 4x^3 - 5x + 2. Show your work with the power rule.\n2. If s(t) = t^2 + 3t, what is the velocity at t = 4? Show your work and explain why velocity is a derivative.\n\nAnswer key\nConceptual 1. A derivative measures instantaneous rate of change, or tangent slope.\nConceptual 2. Average rate uses an interval; a derivative describes the rate at a single instant.\nFree response 1. f′(x) = 12x^2 - 5.\nFree response 2. v(t) = s′(t) = 2t + 3, so v(4) = 11.\n\nKiwi check: derivative means instantaneous rate of change, not the whole-trip average.`

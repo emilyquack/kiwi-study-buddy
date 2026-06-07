@@ -16,6 +16,7 @@ const {
 function testSubjectLibrary() {
   const expected = ["biology", "chemistry", "physics", "math", "psychology", "writing", "history"];
   assert.deepEqual(Object.keys(SUBJECTS), expected);
+  assert(SUBJECTS.chemistry.topics.includes("kinetics"), "General Chemistry should include kinetics as a built-in subtopic");
   assert.deepEqual(SUBJECTS.math.levels, ["Algebra 1", "Geometry", "Algebra 2", "Precalculus", "Calculus 1", "Calculus 2", "Calculus 3"]);
 }
 
@@ -342,6 +343,54 @@ function testFindSourcesForKnownAndCustomTopics() {
   assert.match(customPractice, /OpenStax search/i);
 }
 
+function testChemistryKineticsIsBuiltInSubtopic() {
+  const state = { ...DEFAULT_STATE, activeSubject: "chemistry", activeTopic: "kinetics" };
+  const lesson = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "kinetics",
+    notes: "",
+    confidence: "low",
+    state
+  });
+  assert.match(lesson, /Kinetics: actual Kiwi explanation/i);
+  assert.match(lesson, /reaction rates/i);
+  assert.match(lesson, /rate law/i);
+  assert.match(lesson, /activation energy/i);
+  assert.match(lesson, /OpenStax Chemistry 2e/i);
+  assert.doesNotMatch(lesson, /Custom Kiwi lesson/i);
+
+  const practice = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Practice Problem",
+    topic: "reaction rates",
+    notes: "",
+    confidence: "low",
+    state
+  });
+  assert.match(practice, /Kiwi-generated practice: Kinetics/i);
+  assert.match(practice, /Conceptual questions/i);
+  assert.match(practice, /Math-based free response questions/i);
+  assert.match(practice, /rate = k\[A\]\^2/i);
+  assert.match(practice, /Show your work/i);
+  assert.match(practice, /Answer key/i);
+  assert.match(practice, /Source check/i);
+  assert.match(practice, /OpenStax Chemistry 2e/i);
+  assert.doesNotMatch(practice, /the rule, formula, or quantity your class uses/i);
+
+  const sources = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Find Sources",
+    topic: "chemical kinetics",
+    notes: "",
+    confidence: "low",
+    state
+  });
+  assert.match(sources, /Source starter pack: Kinetics/i);
+  assert.match(sources, /OpenStax Chemistry 2e/i);
+  assert.match(sources, /Khan Academy/i);
+}
+
 function testMathTopicsAreLevelSpecific() {
   const algebraTopics = getTopicsForSubject("math", { ...DEFAULT_STATE, activeMathLevel: "Algebra 1", activeTopic: "linear equations" });
   assert.deepEqual(algebraTopics, ["linear equations", "systems of equations", "inequalities", "functions", "exponents"]);
@@ -398,5 +447,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /rel="noopener noreferrer"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testChemistryKineticsIsBuiltInSubtopic, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
