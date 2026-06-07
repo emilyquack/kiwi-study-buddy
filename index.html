@@ -57,6 +57,31 @@
           <button class="lesson-button practice" id="practice-topic" type="button">Give me practice problems</button>
         </div>
 
+        <section class="fun-lab" aria-labelledby="fun-lab-title">
+          <div class="fun-lab-header">
+            <div>
+              <p class="eyebrow">Study Power-Ups</p>
+              <h3 id="fun-lab-title">Make it cute, chaotic, and useful</h3>
+            </div>
+            <label class="mood-picker" for="mood-mode">
+              Mood-Based Study Modes
+              <select id="mood-mode" name="mood-mode">
+                <option value="cozy">Cozy focus</option>
+                <option value="panic">Tiny panic rescue</option>
+                <option value="cram">10-minute cram</option>
+                <option value="challenge">Quiz me aggressively</option>
+                <option value="story">Story mode</option>
+              </select>
+            </label>
+          </div>
+          <div class="power-grid" aria-label="Fun study modes">
+            <button class="power-button boss" id="boss-battle" type="button">👾 Boss Battle Quiz Mode</button>
+            <button class="power-button detective" id="research-detective" type="button">🕵️ Research Detective Mode</button>
+            <button class="power-button panic" id="panic-button" type="button">😭 Panic Button</button>
+          </div>
+          <div class="badge-shelf" id="badge-shelf" aria-live="polite"></div>
+        </section>
+
         <div class="study-layout">
           <form class="study-form" id="study-form">
             <label for="topic-input">Custom topic or prompt <span class="optional-label">optional</span></label>

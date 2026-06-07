@@ -11,7 +11,13 @@ const {
   normalizeTopic,
   getTopicsForSubject,
   loadState,
-  buildSourceTaughtCustomResponse
+  buildSourceTaughtCustomResponse,
+  buildMoodStudyResponse,
+  buildBossBattleQuiz,
+  buildResearchDetectiveMode,
+  buildPanicRescue,
+  awardAchievementBadges,
+  FUN_FEATURES
 } = require("../app.js");
 
 function testSubjectLibrary() {
@@ -620,5 +626,106 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /rel="noopener noreferrer"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+function testFiveFunFeatureScaffold() {
+  const projectRoot = path.resolve(__dirname, "..");
+  const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
+  const app = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
+  assert.deepEqual(FUN_FEATURES, ["moodModes", "bossBattle", "researchDetective", "achievementBadges", "panicButton"]);
+  assert.match(html, /id="mood-mode"/);
+  assert.match(html, /id="boss-battle"/);
+  assert.match(html, /id="research-detective"/);
+  assert.match(html, /id="panic-button"/);
+  assert.match(html, /id="badge-shelf"/);
+  assert.match(app, /Mood-Based Study Modes/);
+  assert.match(app, /Boss Battle Quiz Mode/);
+  assert.match(app, /Research Detective Mode/);
+  assert.match(app, /Achievement Badges/);
+  assert.match(app, /Panic Button/);
+}
+
+function testMoodModesModifyStudyOutput() {
+  const base = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "stoichiometry",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  const panic = buildMoodStudyResponse(base, "panic", "stoichiometry");
+  const cram = buildMoodStudyResponse(base, "cram", "stoichiometry");
+  assert.match(panic, /Mood mode: Tiny panic rescue/i);
+  assert.match(panic, /Shrink the problem/i);
+  assert.match(panic, /stoichiometry/i);
+  assert.match(cram, /Mood mode: 10-minute cram/i);
+  assert.match(cram, /read only the big idea/i);
+  assert.notEqual(panic, base);
+}
+
+function testBossBattleQuizModeGeneratesGameQuiz() {
+  const response = buildBossBattleQuiz({
+    subjectKey: "chemistry",
+    topic: "stoichiometry",
+    notes: "",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Boss Battle Quiz Mode/i);
+  assert.match(response, /Enemy:/i);
+  assert.match(response, /HP:/i);
+  assert.match(response, /Round 1/i);
+  assert.match(response, /Stoichiometry/i);
+  assert.match(response, /Victory loot/i);
+  assert.match(response, /Kiwi hint/i);
+}
+
+function testResearchDetectiveModeUsesSourcesAndCrossChecks() {
+  const response = buildResearchDetectiveMode({
+    subjectKey: "biology",
+    topic: "mitosis",
+    notes: "",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Research Detective Mode/i);
+  assert.match(response, /Searching the Library Forest/i);
+  assert.match(response, /Wikipedia Nest/i);
+  assert.match(response, /OpenStax Owl/i);
+  assert.match(response, /Scholar Squirrel/i);
+  assert.match(response, /Source check/i);
+  assert.match(response, /mitosis/i);
+}
+
+function testPanicButtonCreatesTinyRescuePlan() {
+  const response = buildPanicRescue({
+    subjectKey: "physics",
+    topic: "kinematics",
+    notes: "",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Panic Button/i);
+  assert.match(response, /We are shrinking the problem/i);
+  assert.match(response, /One-sentence version/i);
+  assert.match(response, /Three tiny steps/i);
+  assert.match(response, /kinematics/i);
+  assert.match(response, /tiny check/i);
+}
+
+function testAchievementBadgesAwardUniqueProgress() {
+  const state = {
+    ...DEFAULT_STATE,
+    savedTopics: [
+      { subjectKey: "biology", topic: "cell membranes", confidence: "low", updatedAt: 1 },
+      { subjectKey: "chemistry", topic: "stoichiometry", confidence: "okay", updatedAt: 2 }
+    ],
+    badges: ["first-lesson-sprout"]
+  };
+  const next = awardAchievementBadges(state, { action: "Boss Battle", topic: "stoichiometry", usedSources: true, mood: "panic" });
+  assert(next.badges.includes("first-lesson-sprout"));
+  assert(next.badges.includes("practice-goblin-slayer"));
+  assert(next.badges.includes("source-detective"));
+  assert(next.badges.includes("boss-battle-bean"));
+  assert(next.badges.includes("panic-button-hero"));
+  assert.equal(new Set(next.badges).size, next.badges.length);
+}
+
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

@@ -83,11 +83,52 @@ const SUBJECTS = {
   }
 };
 
+const FUN_FEATURES = ["moodModes", "bossBattle", "researchDetective", "achievementBadges", "panicButton"];
+// Mood-Based Study Modes + Boss Battle Quiz Mode + Research Detective Mode + Achievement Badges + Panic Button are the five playful Kiwi power-ups.
+
+const MOOD_MODES = {
+  cozy: {
+    label: "Cozy focus",
+    prefix: "Mood mode: Cozy focus",
+    guidance: "Read gently, underline one useful sentence, then try one tiny check. Kiwi brought a warm study blanket."
+  },
+  panic: {
+    label: "Tiny panic rescue",
+    prefix: "Mood mode: Tiny panic rescue",
+    guidance: "Shrink the problem: read only the one-sentence idea first, then do one example with Kiwi holding the academic flashlight."
+  },
+  cram: {
+    label: "10-minute cram",
+    prefix: "Mood mode: 10-minute cram",
+    guidance: "For the next 10 minutes, read only the big idea, the common mistake, and one practice/quiz check. No decorative suffering."
+  },
+  challenge: {
+    label: "Quiz me aggressively",
+    prefix: "Mood mode: Quiz me aggressively",
+    guidance: "After reading, cover the answer key and explain the topic out loud. Kiwi will allow dramatic villain music."
+  },
+  story: {
+    label: "Story mode",
+    prefix: "Mood mode: Story mode",
+    guidance: "Turn the concept into a tiny story: who changes, what causes it, and what clue proves it on a test."
+  }
+};
+
+const BADGE_LIBRARY = {
+  "first-lesson-sprout": { icon: "🌱", label: "First Lesson Sprout", description: "Opened a lesson and started the study garden." },
+  "practice-goblin-slayer": { icon: "🗡️", label: "Practice Goblin Slayer", description: "Built up enough study reps to scare a worksheet." },
+  "source-detective": { icon: "🕵️", label: "Source Detective", description: "Checked sources before trusting facts." },
+  "boss-battle-bean": { icon: "👾", label: "Boss Battle Bean", description: "Entered quiz-battle mode." },
+  "panic-button-hero": { icon: "🫶", label: "Panic Button Hero", description: "Shrank a scary topic into tiny steps." }
+};
+
 const DEFAULT_STATE = {
   activeSubject: "biology",
   activeMathLevel: "Algebra 1",
   activeTopic: "cell membranes",
-  savedTopics: []
+  activeMood: "cozy",
+  savedTopics: [],
+  badges: []
 };
 
 function cloneState(state) {
@@ -1403,6 +1444,48 @@ async function buildStudyResponseWithLiveSources({ subjectKey, action, topic, no
   }
 }
 
+function buildMoodStudyResponse(response, moodKey = "cozy", topic = "this topic") {
+  const mood = MOOD_MODES[moodKey] || MOOD_MODES.cozy;
+  return `${mood.prefix}\nTopic focus: ${topic}\n${mood.guidance}\n\n${response}`;
+}
+
+function getCustomOrBuiltInAnchor(subjectKey, topic, notes = "", state = DEFAULT_STATE) {
+  const cleanTopic = normalizeTopic(topic, subjectKey, state);
+  const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
+  return { cleanTopic, anchor };
+}
+
+function buildBossBattleQuiz({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
+  const subject = getSubject(subjectKey);
+  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const enemy = `${subject.icon} ${anchor.title} Gremlin`;
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : buildInlineSourceBlock(subjectKey, cleanTopic);
+  return `Boss Battle Quiz Mode: ${anchor.title}${level}\n\nEnemy: ${enemy}\nHP: 5 hearts ♥ ♥ ♥ ♥ ♥\nWin condition: answer 3 rounds. Wrong answer? Kiwi gives a hint instead of emotional damage.\n\nRound 1 — Definition strike\nWhat is ${anchor.title}?\nKiwi hint: ${anchor.overview}\n\nRound 2 — Trap dodge\nWhat common mistake should you avoid?\nKiwi hint: ${anchor.mistake}\n\nRound 3 — Evidence spell\nUse one example, formula, source detail, or scenario clue to prove this is about ${anchor.title}.\nKiwi hint: ${anchor.example}\n\nVictory loot\n• Badge chance: Boss Battle Bean 👾\n• Tiny reward: ${anchor.testCue}\n• Final move: explain ${anchor.title} out loud in 20 seconds.${sourceBlock}`;
+}
+
+function buildResearchDetectiveMode({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
+  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
+  const searches = buildSourceSearches(subjectKey, cleanTopic);
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : buildInlineSourceBlock(subjectKey, cleanTopic);
+  return `Research Detective Mode: ${cleanTopic}\n\nKiwi puts on the tiny detective hat. No uncited vibes will escape.\n\nInvestigation trail\n1. Searching the Library Forest: define ${cleanTopic} from a reliable overview.\n2. Checking Wikipedia Nest: use it for orientation, not the final boss answer.\n3. Consulting OpenStax Owl: look for textbook-style wording or related chapters.\n4. Asking Khan Academy Koala: look for student-friendly examples.\n5. Cross-checking with Scholar Squirrel: verify deeper or academic claims.\n\nDetective notebook\n• Working claim: ${anchor.overview}\n• Evidence to collect: ${anchor.example}\n• Red flag: ${anchor.mistake}\n\nSource cards\n${searches.map(item => `• ${item.label.replace("Wikipedia search", "Wikipedia Nest").replace("OpenStax search", "OpenStax Owl").replace("Khan Academy search", "Khan Academy Koala").replace("Google Scholar search", "Scholar Squirrel")}: ${item.url}`).join("\n")}\n\nSource check\nTrust a fact more when at least two sources agree, or when your teacher/textbook confirms it.${sourceBlock}`;
+}
+
+function buildPanicRescue({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
+  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
+  return `Panic Button: ${cleanTopic}\n\nOkay. We are shrinking the problem. Kiwi has cancelled the academic thunderstorm.\n\nOne-sentence version\n${anchor.overview}\n\nThree tiny steps\n1. Say the topic name: ${anchor.title}.\n2. Read this one clue: ${anchor.keyIdeas[0]}.\n3. Try this tiny example: ${anchor.example}\n\nCommon trap to ignore for now\n${anchor.mistake}\n\nOne tiny check\nCan you explain ${anchor.title} using the clue above in one sentence? If yes, you are not lost — you are just loading. 🥭🐾`;
+}
+
+function awardAchievementBadges(state, event = {}) {
+  const current = new Set(Array.isArray(state.badges) ? state.badges : []);
+  if (event.action || event.topic) current.add("first-lesson-sprout");
+  if ((state.savedTopics || []).length >= 2 || /Practice/i.test(event.action || "")) current.add("practice-goblin-slayer");
+  if (event.usedSources || /Research Detective|Find Sources/i.test(event.action || "")) current.add("source-detective");
+  if (/Boss Battle/i.test(event.action || "")) current.add("boss-battle-bean");
+  if (event.mood === "panic" || /Panic Button/i.test(event.action || "")) current.add("panic-button-hero");
+  return { ...cloneState(state), badges: Array.from(current) };
+}
+
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic, subjectKey, state);
@@ -1418,6 +1501,9 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
     "Study Guide": buildKiwiStudyGuide({ subjectKey, cleanTopic, notes, state }),
     "Summarize Notes": buildKiwiSummary({ subjectKey, cleanTopic, notes, state }),
     "Find Sources": buildSourceResponse({ subjectKey, cleanTopic }),
+    "Boss Battle": buildBossBattleQuiz({ subjectKey, topic: cleanTopic, notes, state }),
+    "Research Detective": buildResearchDetectiveMode({ subjectKey, topic: cleanTopic, notes, state }),
+    "Panic Button": buildPanicRescue({ subjectKey, topic: cleanTopic, notes, state }),
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,
     "Mistake Check": `Mistake check for ${cleanTopic}${level}:\n\nKiwi will look for sign errors, dropped units, skipped assumptions, unlabeled graphs, and suspicious leaps. Circle the step where your confidence drops first.` ,
     "Unit Check": `Unit check for ${cleanTopic}:\n\nWrite every number with units, convert before calculating, and make sure the final unit matches the question. Chemistry gremlins fear dimensional analysis.` ,
@@ -1474,7 +1560,12 @@ function setupApp() {
     saveTopic: document.querySelector("#save-topic"),
     reviewWeak: document.querySelector("#review-weak"),
     resetDemo: document.querySelector("#reset-demo"),
-    kiwiButton: document.querySelector("#kiwi-button")
+    kiwiButton: document.querySelector("#kiwi-button"),
+    moodMode: document.querySelector("#mood-mode"),
+    bossBattle: document.querySelector("#boss-battle"),
+    researchDetective: document.querySelector("#research-detective"),
+    panicButton: document.querySelector("#panic-button"),
+    badgeShelf: document.querySelector("#badge-shelf")
   };
   let state = loadState();
 
@@ -1513,11 +1604,14 @@ function setupApp() {
   async function runLesson(action) {
     const topic = getCurrentTopic();
     const notes = els.notes.value;
-    if (shouldUseLiveCustomSources({ subjectKey: state.activeSubject, cleanTopic: normalizeTopic(topic, state.activeSubject, state), notes })) {
-      renderOutput(`${getSubject(state.activeSubject).voice}\n\nKiwi is checking live sources for “${topic}” now — Wikipedia first, then source links for cross-checking. Tiny research paws loading...`);
+    const mood = els.moodMode?.value || state.activeMood || "cozy";
+    state.activeMood = mood;
+    const usedSources = action === "Research Detective" || action === "Find Sources" || shouldUseLiveCustomSources({ subjectKey: state.activeSubject, cleanTopic: normalizeTopic(topic, state.activeSubject, state), notes });
+    if (usedSources && action !== "Panic Button") {
+      renderOutput(`${getSubject(state.activeSubject).voice}\n\nKiwi is checking source paths for “${topic}” now — Wikipedia Nest, OpenStax Owl, Khan Academy Koala, and Scholar Squirrel. Tiny research paws loading...`);
       els.bubble.textContent = "Checking sources before teaching. Academic suspicion activated.";
     }
-    const response = await buildStudyResponseWithLiveSources({
+    const rawResponse = await buildStudyResponseWithLiveSources({
       subjectKey: state.activeSubject,
       action,
       topic,
@@ -1525,8 +1619,12 @@ function setupApp() {
       confidence: getConfidence(),
       state
     });
+    const response = action === "Panic Button" ? rawResponse : buildMoodStudyResponse(rawResponse, mood, topic);
     renderOutput(response);
-    els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : "Teaching mode. Kiwi has seized the chalkboard.";
+    state = awardAchievementBadges(state, { action, topic, usedSources, mood });
+    saveState(state);
+    renderBadgeShelf();
+    els.bubble.textContent = action === "Practice Problem" ? "Practice set generated. Tiny pencil claws out." : action === "Boss Battle" ? "Boss Battle loaded. Kiwi equips tiny armor." : action === "Research Detective" ? "Detective mode. Kiwi found the magnifying glass." : action === "Panic Button" ? "Panic shrunk. Tiny problem now." : "Teaching mode. Kiwi has seized the chalkboard.";
   }
 
   function renderSubjects() {
@@ -1582,6 +1680,19 @@ function setupApp() {
     }).join("");
   }
 
+  function renderBadgeShelf() {
+    if (!els.badgeShelf) return;
+    const badges = Array.isArray(state.badges) ? state.badges : [];
+    if (!badges.length) {
+      els.badgeShelf.innerHTML = `<span class="badge-empty">Achievement Badges appear here after Kiwi sees your study chaos sparkle.</span>`;
+      return;
+    }
+    els.badgeShelf.innerHTML = badges.map(id => {
+      const badge = BADGE_LIBRARY[id] || { icon: "🏅", label: id, description: "Mystery study badge." };
+      return `<span class="badge-pill" title="${escapeHtml(badge.description)}"><span aria-hidden="true">${badge.icon}</span>${escapeHtml(badge.label)}</span>`;
+    }).join("");
+  }
+
   function moveIntoStudyMode() {
     const panel = document.querySelector("#study-panel");
     if (!panel) return;
@@ -1612,6 +1723,8 @@ function setupApp() {
     renderTopicLibrary();
     renderActions();
     renderWeakBoard();
+    if (els.moodMode) els.moodMode.value = state.activeMood || "cozy";
+    renderBadgeShelf();
   }
 
   els.subjectGrid.addEventListener("click", event => {
@@ -1654,6 +1767,15 @@ function setupApp() {
 
   els.teachTopic.addEventListener("click", () => runLesson("Explain"));
   els.practiceTopic.addEventListener("click", () => runLesson("Practice Problem"));
+  els.bossBattle?.addEventListener("click", () => runLesson("Boss Battle"));
+  els.researchDetective?.addEventListener("click", () => runLesson("Research Detective"));
+  els.panicButton?.addEventListener("click", () => runLesson("Panic Button"));
+  els.moodMode?.addEventListener("change", () => {
+    state.activeMood = els.moodMode.value;
+    saveState(state);
+    const mood = MOOD_MODES[state.activeMood] || MOOD_MODES.cozy;
+    els.bubble.textContent = `${mood.label} selected. Kiwi adjusted the emotional lighting.`;
+  });
 
   els.actions.addEventListener("click", async event => {
     const button = event.target.closest("[data-action]");
@@ -1663,9 +1785,12 @@ function setupApp() {
   });
 
   els.saveTopic.addEventListener("click", () => {
-    state = upsertTopic(state, { subjectKey: state.activeSubject, topic: getCurrentTopic(), confidence: getConfidence() });
+    const topic = getCurrentTopic();
+    state = upsertTopic(state, { subjectKey: state.activeSubject, topic, confidence: getConfidence() });
+    state = awardAchievementBadges(state, { action: "Save Topic", topic, mood: state.activeMood });
     saveState(state);
     renderWeakBoard();
+    renderBadgeShelf();
     els.bubble.textContent = "Topic saved. Paw stamp awarded.";
   });
 
@@ -1710,5 +1835,5 @@ if (typeof document !== "undefined") {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildSourceTaughtCustomResponse, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
+  module.exports = { SUBJECTS, DEFAULT_STATE, FUN_FEATURES, MOOD_MODES, BADGE_LIBRARY, buildStudyResponse, buildPracticeProblem, buildSourceTaughtCustomResponse, buildMoodStudyResponse, buildBossBattleQuiz, buildResearchDetectiveMode, buildPanicRescue, awardAchievementBadges, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
 }
