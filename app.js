@@ -874,6 +874,10 @@ function buildSourceSearches(subjectKey, cleanTopic) {
   ];
 }
 
+function buildCustomSourceBlock(subjectKey, cleanTopic) {
+  return `\n\nSource check:\nKiwi checks multiple source paths for this custom topic before turning it into study material:\n${formatSources(buildSourceSearches(subjectKey, cleanTopic))}`;
+}
+
 function buildInlineSourceBlock(subjectKey, cleanTopic) {
   const sourceEntry = findSourceEntry(subjectKey, cleanTopic);
   if (sourceEntry) {
@@ -891,16 +895,16 @@ function buildSourceResponse({ subjectKey, cleanTopic }) {
   }
 
   const searchSources = buildSourceSearches(subjectKey, cleanTopic);
-  return `Source starter pack: ${cleanTopic}\n\nI do not have a curated source card for this custom topic yet, so Kiwi built reliable search links instead:\n${formatSources(searchSources)}\n\nBest workflow: open 2 sources, paste the class definition or example into the notes box, then ask Kiwi to teach/practice from that source-backed note.`;
+  return `Source starter pack: ${cleanTopic}\n\nI do not have a curated source card for this custom topic yet, so Kiwi built reliable search links instead:\n${formatSources(searchSources)}\n\nBest workflow: open 2 sources, compare their definitions/examples, then ask Kiwi to explain, practice, make flashcards, or build a study guide. If the browser can reach Wikipedia, Kiwi will also try to pull a live summary automatically.`;
 }
 
 function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes }) {
-  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  const sourceBlock = buildCustomSourceBlock(subjectKey, cleanTopic);
   const hasNotes = Boolean(notes && notes.trim());
   const noteFocus = hasNotes ? notes.trim().slice(0, 260) + (notes.trim().length > 260 ? "…" : "") : "";
 
   if (!hasNotes) {
-    return `Custom topic needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for “${cleanTopic}” yet, so Kiwi will not invent a definition or facts.\n\nTo get correct custom-topic help:\n1. Paste your class definition, textbook excerpt, or teacher example into the notes box.\n2. Use Find Sources to open a reliable source if you do not have notes yet.\n3. Ask for Explain, Practice Problem, Flashcards, or Study Guide again; Kiwi will build from that source-backed anchor.\n\nWhat Kiwi can safely do now:\n• Keep the exact custom topic: ${cleanTopic}.\n• Give source links for ${subject.label}.\n• Avoid making up details just because the topic sounds like it belongs to a subject.${sourceBlock}`;
+    return `Source-guided custom lesson: ${cleanTopic}${level}\n\nKiwi can teach this custom topic by checking multiple sources instead of requiring pasted notes first.\n\nHow Kiwi will teach it:\n1. Start with the Wikipedia result for a quick neutral definition when one is available.\n2. Cross-check with a textbook/open-education search such as OpenStax.\n3. Use Khan Academy for student-friendly examples when the topic exists there.\n4. Use Google Scholar when the topic needs academic backup.\n\nStudy target:\n• Topic: ${cleanTopic}\n• Subject lens: ${subject.label}\n\nWhat to learn first:\n• Definition: use the top reliable source's wording, not a guessed subject template.\n• Key ideas: list 2–3 facts that appear across more than one source.\n• Example: choose an example from a textbook, class-style lesson, or encyclopedia summary.\n• Common mistake: do not trust a single search result until you compare it with another source.\n\nIf the page can reach Wikipedia, Kiwi will replace this starter with a live source summary automatically.${sourceBlock}`;
   }
 
   return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition from your notes:\n${noteFocus}\n\nWhat Kiwi can safely say:\n• This custom-topic output is based on your pasted prompt/notes, not an invented built-in lesson.\n• Use the note wording above as the definition or starting claim until you replace it with your teacher/textbook wording.\n• The safest example is the one already present in your prompt or notes.\n\nExample from your prompt/notes:\n${noteFocus}\n\nCommon mistake:\nDo not let Kiwi guess extra facts for ${cleanTopic}. If your class uses a specific definition, formula, diagram, source, or exception, paste it into the notes box so the output stays tied to that evidence.\n\nHow to recognize it on a test:\nLook for the exact keywords from your notes, related data/diagrams, or a prompt asking you to explain, calculate, compare, or apply ${cleanTopic}.${sourceBlock}`;
@@ -1223,7 +1227,7 @@ function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_S
   const hasNotes = Boolean(notes && notes.trim());
 
   if (!explanation && !hasNotes) {
-    return `Custom practice needs a source-backed anchor: ${cleanTopic}\n\nI do not have a verified built-in practice set for “${cleanTopic}” yet, so Kiwi will not invent questions, formulas, examples, or solved answers.\n\nPaste your class definition, formula, data table, or example into the notes box. Then Kiwi can generate practice that stays tied to your topic instead of guessing.\n\nSafe practice starter for now:\n1. Find or paste one reliable definition for ${cleanTopic}.\n2. Underline the exact words, variables, dates, evidence, or diagram labels your class uses.\n3. Turn that source-backed information into one conceptual question and one free-response question.${sourceBlock}`;
+    return `Source-guided custom practice: ${cleanTopic}\n\nKiwi can build practice for this custom topic by using multiple sources first, so you do not have to paste notes before studying.\n\nConceptual questions\n1. Open the Wikipedia or textbook-style source below. What definition does it give for ${cleanTopic}?\n2. Which detail appears in at least two sources, or appears in one source plus your class materials?\n3. What example, diagram, date, formula, or scenario does a reliable source use to explain ${cleanTopic}?\n\nFree response questions\n1. Write a 3–5 sentence explanation of ${cleanTopic} using one source as evidence. Cite the source label you used.\n2. Compare two source results below. What do they agree on, and what should you verify before memorizing?\n\nSource-check answer key\nConceptual 1. Strong answer quotes or paraphrases a reliable source definition and names the source.\nConceptual 2. Strong answer uses cross-source agreement instead of guessing from the topic name.\nConceptual 3. Strong answer names a concrete source-backed example, formula, diagram, event, or scenario.\nFree response 1. Strong answer is accurate to the source and includes evidence, not vibes in a tiny hat.\nFree response 2. Strong answer separates agreed facts from details that need more verification.${sourceBlock}`;
   }
 
   const customNote = hasNotes ? notes.trim().slice(0, 180) + (notes.trim().length > 180 ? "…" : "") : "Add your class notes to make this custom practice more specific.";
@@ -1247,7 +1251,7 @@ function compactNoteAnchor(notes, fallback) {
 function buildStudyContentAnchor({ subjectKey, cleanTopic, notes = "" }) {
   const subject = getSubject(subjectKey);
   const explanation = findExplanation(subjectKey, cleanTopic);
-  const customNote = compactNoteAnchor(notes, `Add class notes to make Kiwi's custom ${subject.label} content more specific.`);
+  const customNote = compactNoteAnchor(notes, `Source-guided custom topic: use the source links below to define ${cleanTopic}, then cross-check facts before memorizing.`);
 
   if (explanation) {
     return {
@@ -1284,7 +1288,7 @@ function buildKiwiFlashcards({ subjectKey, cleanTopic, notes = "", state = DEFAU
   const ideaOne = anchor.keyIdeas[0];
   const ideaTwo = anchor.keyIdeas[1] || anchor.keyIdeas[0];
   const ideaThree = anchor.keyIdeas[2] || anchor.keyIdeas[0];
-  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : buildInlineSourceBlock(subjectKey, cleanTopic);
   const customLine = anchor.isCustom ? `\nCustom topic anchor:\n${anchor.customNote}\n` : "";
 
   return `Kiwi-generated flashcards: ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nCard 1\nFront: What is ${anchor.title}?\nBack: ${anchor.overview}\n\nCard 2\nFront: What is one must-know idea for ${anchor.title}?\nBack: ${ideaOne}\n\nCard 3\nFront: What second clue or rule should you remember?\nBack: ${ideaTwo}\n\nCard 4\nFront: How can ${anchor.title} show up in an example?\nBack: ${anchor.example}\n\nCard 5\nFront: What common mistake should you avoid?\nBack: ${anchor.mistake}\n\nCard 6\nFront: How will Kiwi recognize this on a quiz or test?\nBack: ${anchor.testCue}\n\nBonus paw card\nFront: What is the tiny one-sentence summary?\nBack: ${ideaThree}\n${customLine}\nKiwi check: this deck is already generated for the topic; you can copy it straight into cards and edit wording if your class uses a special definition.${sourceBlock}`;
@@ -1294,7 +1298,7 @@ function buildKiwiStudyGuide({ subjectKey, cleanTopic, notes = "", state = DEFAU
   const subject = getSubject(subjectKey);
   const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
   const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
-  const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : buildInlineSourceBlock(subjectKey, cleanTopic);
   const mustKnow = anchor.keyIdeas.map((idea, index) => `${index + 1}. ${idea}`).join("\n");
   const customSection = anchor.isCustom ? `\n\nCustom topic anchor\n${anchor.customNote}` : "";
   const stemCheck = STEM_SUBJECT_KEYS.has(subjectKey)
@@ -1307,10 +1311,10 @@ function buildKiwiStudyGuide({ subjectKey, cleanTopic, notes = "", state = DEFAU
 function buildKiwiQuiz({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
   const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
   const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
-  const sourceBlock = anchor.isCustom ? buildInlineSourceBlock(subjectKey, cleanTopic) : "";
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : "";
 
   if (anchor.isCustom && !(notes && notes.trim())) {
-    return `Quick Kiwi quiz needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for this custom topic yet, so Kiwi will not quiz you on made-up facts. Paste your class definition, prompt, or example into the notes box first.${sourceBlock}`;
+    return `Source-guided custom quiz: ${cleanTopic}${level}\n\nKiwi can quiz custom topics by using multiple source links first.\n\nSource-first questions\nQ1. Open a source below: what definition does it give for ${cleanTopic}?\nQ2. What detail appears in the source that you should memorize?\nQ3. Which second source would you use to cross-check it?\n\nAnswer check\n1. Strong answer cites the source wording.\n2. Strong answer names an exact fact, formula, example, date, diagram cue, or vocabulary term from the source.\n3. Strong answer verifies with another source before trusting it.${sourceBlock}`;
   }
 
   return `Quick Kiwi quiz for ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nNotes/topic anchor:\n${anchor.customNote}\n\nQ1. Using the anchor above, what is the safest definition or central claim for ${anchor.title}?\nQ2. What detail, formula, evidence, or example from the anchor proves this is about ${anchor.title}?\nQ3. What is one mistake someone could make if they guessed beyond the provided anchor?\n\nAnswer check\n1. Your answer should reuse the built-in lesson or pasted notes, not invented facts.\n2. Your evidence should point to exact wording, data, a formula, or a scenario clue.\n3. The corrected mistake should stay inside the source-backed information Kiwi has.${sourceBlock}`;
@@ -1319,13 +1323,84 @@ function buildKiwiQuiz({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STA
 function buildKiwiSummary({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
   const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
   const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
-  const sourceBlock = anchor.isCustom ? buildInlineSourceBlock(subjectKey, cleanTopic) : "";
+  const sourceBlock = anchor.isCustom ? buildCustomSourceBlock(subjectKey, cleanTopic) : "";
 
   if (anchor.isCustom && !(notes && notes.trim())) {
-    return `Summary needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for this custom topic yet. Paste your class definition, textbook line, teacher prompt, or example into the notes box, and Kiwi will summarize that exact information instead of guessing.${sourceBlock}`;
+    return `Source-guided custom summary: ${cleanTopic}${level}\n\nKiwi can summarize custom topics by opening source paths instead of requiring pasted notes.\n\nBig idea\nUse the first reliable source result to define ${cleanTopic}, then cross-check the definition with a second source.\n\nTest-relevant details to collect\n• Definition or main claim from a reliable source.\n• One example, formula, date, diagram cue, or scenario from a source.\n• One fact that appears in more than one source.\n\nOne-sentence review starter\n${cleanTopic} is a custom topic Kiwi should summarize from source evidence, not from a guessed subject template.${sourceBlock}`;
   }
 
   return `Kiwi summary for ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nSource-backed anchor:\n${anchor.customNote}\n\nBig idea:\n${anchor.overview}\n\nTest-relevant details:\n${anchor.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample or evidence:\n${anchor.example}\n\nWatch-out:\n${anchor.mistake}\n\nOne-sentence review:\n${anchor.title} is the topic, and the safest summary is the built-in lesson or pasted note anchor above.${sourceBlock}`;
+}
+
+function buildSourceTaughtCustomResponse({ subjectKey, action, cleanTopic, source, state = DEFAULT_STATE }) {
+  const subject = getSubject(subjectKey);
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const title = source?.title || cleanTopic;
+  const extract = source?.extract || `Kiwi found source links for ${cleanTopic}, but not a readable summary yet.`;
+  const url = source?.url || buildSourceSearches(subjectKey, cleanTopic).find(item => item.label === "Wikipedia search")?.url;
+  const sentences = extract.match(/[^.!?]+[.!?]+/g) || [extract];
+  const ideaOne = (sentences[0] || extract).trim();
+  const ideaTwo = (sentences[1] || sentences[0] || extract).trim();
+  const sourceLine = `Source used: ${title}${url ? `\n${url}` : ""}`;
+  const sourceBlock = buildCustomSourceBlock(subjectKey, cleanTopic);
+
+  if (action === "Practice Problem") {
+    return `Live source practice: ${cleanTopic}${level}\n\nSource summary\n${extract}\n\nConceptual questions\n1. What definition or main claim does the source give for ${cleanTopic}?\n2. What detail in the source helps you recognize this topic on a test?\n\nFree response questions\n1. Explain ${cleanTopic} in 3–5 sentences using the source summary as evidence.\n2. Compare the source summary with one of the search links below and list one fact that matches.\n\nSource-check answer key\nConceptual 1. Strong answer includes: ${ideaOne}\nConceptual 2. Strong answer points to exact source wording instead of guessing.\nFree response 1. Strong answer accurately paraphrases the source summary and cites it.\nFree response 2. Strong answer checks another source before memorizing.\n\n${sourceLine}${sourceBlock}`;
+  }
+
+  if (action === "Flashcards") {
+    return `Live source flashcards: ${cleanTopic}${level}\nTopic/subtopic: ${cleanTopic}\n\nCard 1\nFront: What does the source say ${cleanTopic} is?\nBack: ${ideaOne}\n\nCard 2\nFront: What is another key detail?\nBack: ${ideaTwo}\n\nCard 3\nFront: Which source should you cite/check first?\nBack: ${sourceLine}\n\nCard 4\nFront: What should you verify before memorizing?\nBack: Compare this summary with another source link below.\n\n${sourceLine}${sourceBlock}`;
+  }
+
+  if (action === "Study Guide" || action === "Summarize Notes") {
+    return `Live source study guide: ${cleanTopic}${level}\n\nSubject focus: ${subject.label}\n\nBig idea\n${ideaOne}\n\nMust-know ideas\n1. ${ideaOne}\n2. ${ideaTwo}\n3. Verify details with at least one more source if this is for a quiz or paper.\n\nWorked example / evidence\nUse the source summary as your first evidence block: ${extract}\n\nCommon mistake\nDo not assume the first source is your teacher's exact wording; cross-check with a textbook/class source when possible.\n\nQuick check\n1. Define ${cleanTopic} from the source.\n2. Name one detail to verify in another source.\n3. Explain why this source is relevant.\n\n${sourceLine}${sourceBlock}`;
+  }
+
+  if (action === "Quiz Me") {
+    return `Live source quiz: ${cleanTopic}${level}\n\nSource summary\n${extract}\n\nQ1. What is the main definition or claim from the source?\nQ2. Which phrase from the source is the best evidence?\nQ3. What should you cross-check before using this on a test?\n\nAnswer check\n1. ${ideaOne}\n2. Quote or paraphrase exact wording from the source summary.\n3. Use the source links below to verify details.\n\n${sourceLine}${sourceBlock}`;
+  }
+
+  return `Live source lesson: ${cleanTopic}${level}\n\nSource summary\n${extract}\n\nKey ideas\n• ${ideaOne}\n• ${ideaTwo}\n• Cross-check details with another source before memorizing.\n\nExample / evidence\nUse this source-backed wording as the starting example: ${ideaOne}\n\nCommon mistake\nDo not let Kiwi or a search result overgeneralize ${cleanTopic}; compare at least two sources when details matter.\n\nHow to recognize it on a test\nLook for wording that matches the source summary, related vocabulary, examples, diagrams, formulas, dates, or evidence prompts.\n\n${sourceLine}${sourceBlock}`;
+}
+
+async function fetchWikipediaTopicSummary(cleanTopic) {
+  const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTopic)}&format=json&origin=*`;
+  const searchResponse = await fetch(searchUrl);
+  if (!searchResponse.ok) throw new Error("Wikipedia search failed");
+  const searchData = await searchResponse.json();
+  const topTitle = searchData?.query?.search?.[0]?.title;
+  if (!topTitle) throw new Error("No Wikipedia result found");
+
+  const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topTitle)}`;
+  const summaryResponse = await fetch(summaryUrl);
+  if (!summaryResponse.ok) throw new Error("Wikipedia summary failed");
+  const summary = await summaryResponse.json();
+  if (!summary.extract) throw new Error("Wikipedia summary was empty");
+  return {
+    title: summary.title || topTitle,
+    extract: summary.extract,
+    url: summary.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(topTitle.replace(/ /g, "_"))}`
+  };
+}
+
+function shouldUseLiveCustomSources({ subjectKey, cleanTopic, notes }) {
+  return !(notes && notes.trim()) && !findExplanation(subjectKey, cleanTopic);
+}
+
+async function buildStudyResponseWithLiveSources({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
+  const cleanTopic = normalizeTopic(topic, subjectKey, state);
+  const subject = getSubject(subjectKey);
+  const liveActions = new Set(["Explain", "Practice Problem", "Flashcards", "Study Guide", "Quiz Me", "Summarize Notes"]);
+  if (!liveActions.has(action) || !shouldUseLiveCustomSources({ subjectKey, cleanTopic, notes })) {
+    return buildStudyResponse({ subjectKey, action, topic: cleanTopic, notes, confidence, state });
+  }
+
+  try {
+    const source = await fetchWikipediaTopicSummary(cleanTopic);
+    return `${subject.voice}\n\n${buildSourceTaughtCustomResponse({ subjectKey, action, cleanTopic, source, state })}`;
+  } catch (error) {
+    return buildStudyResponse({ subjectKey, action, topic: cleanTopic, notes, confidence, state });
+  }
 }
 
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
@@ -1435,12 +1510,18 @@ function setupApp() {
     return state.activeTopic;
   }
 
-  function runLesson(action) {
-    const response = buildStudyResponse({
+  async function runLesson(action) {
+    const topic = getCurrentTopic();
+    const notes = els.notes.value;
+    if (shouldUseLiveCustomSources({ subjectKey: state.activeSubject, cleanTopic: normalizeTopic(topic, state.activeSubject, state), notes })) {
+      renderOutput(`${getSubject(state.activeSubject).voice}\n\nKiwi is checking live sources for “${topic}” now — Wikipedia first, then source links for cross-checking. Tiny research paws loading...`);
+      els.bubble.textContent = "Checking sources before teaching. Academic suspicion activated.";
+    }
+    const response = await buildStudyResponseWithLiveSources({
       subjectKey: state.activeSubject,
       action,
-      topic: getCurrentTopic(),
-      notes: els.notes.value,
+      topic,
+      notes,
       confidence: getConfidence(),
       state
     });
@@ -1574,18 +1655,10 @@ function setupApp() {
   els.teachTopic.addEventListener("click", () => runLesson("Explain"));
   els.practiceTopic.addEventListener("click", () => runLesson("Practice Problem"));
 
-  els.actions.addEventListener("click", event => {
+  els.actions.addEventListener("click", async event => {
     const button = event.target.closest("[data-action]");
     if (!button) return;
-    const response = buildStudyResponse({
-      subjectKey: state.activeSubject,
-      action: button.dataset.action,
-      topic: getCurrentTopic(),
-      notes: els.notes.value,
-      confidence: getConfidence(),
-      state
-    });
-    renderOutput(response);
+    await runLesson(button.dataset.action);
     els.bubble.textContent = `${button.dataset.action} mode. Kiwi is academically suspicious.`;
   });
 
@@ -1637,5 +1710,5 @@ if (typeof document !== "undefined") {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
+  module.exports = { SUBJECTS, DEFAULT_STATE, buildStudyResponse, buildPracticeProblem, buildSourceTaughtCustomResponse, buildWeakTopics, upsertTopic, normalizeTopic, getTopicsForSubject, loadState };
 }
