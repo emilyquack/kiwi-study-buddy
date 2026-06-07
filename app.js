@@ -895,54 +895,15 @@ function buildSourceResponse({ subjectKey, cleanTopic }) {
 }
 
 function buildFallbackExplanation({ subject, subjectKey, cleanTopic, level, notes }) {
-  const subjectFrames = {
-    biology: {
-      definition: "a living-system structure, process, or relationship",
-      keyIdeas: ["Identify the parts involved.", "Track how matter, energy, or information moves.", "Connect the process to a cell, organism, population, or ecosystem outcome."],
-      example: `If ${cleanTopic} appears in a biology question, describe the biological players, the sequence of events, and the effect on the living system.`,
-      mistake: "Do not list vocabulary without explaining the cause-and-effect relationship."
-    },
-    chemistry: {
-      definition: "a chemistry idea involving particles, energy, bonding, reactions, structure, or measurable evidence",
-      keyIdeas: ["Identify the particles, bonds, substances, or energy changes involved.", "Look for units, ratios, charge, concentration, or evidence from data.", "Connect the microscopic particle behavior to the observable result."],
-      example: `For ${cleanTopic}, start by naming the chemical species or energy change, then explain what changes and how you would measure it.`,
-      mistake: "Do not skip units or particle-level reasoning; chemistry answers need both the tiny world and the evidence."
-    },
-    physics: {
-      definition: "a physics situation involving objects, motion, forces, energy, waves, fields, or circuits",
-      keyIdeas: ["Define the system and draw or imagine the diagram.", "List knowns, unknowns, units, and directions.", "Choose the law, graph, or equation that connects the variables."],
-      example: `For ${cleanTopic}, translate the words into variables first, then use the equation that links the given values to the unknown.`,
-      mistake: "Do not do number-crunching before choosing directions, units, and the physical law."
-    },
-    math: {
-      definition: "a math skill involving expressions, equations, functions, shapes, rates, or accumulation",
-      keyIdeas: ["Identify what kind of object you have: expression, equation, graph, shape, or function.", "Choose the rule that matches this class level.", "Show one valid algebra/geometry/calculus move per line."],
-      example: `For ${cleanTopic}, write a small sample problem, label the goal, and solve step-by-step while preserving equality or meaning.`,
-      mistake: "Do not jump steps; the missing line is usually where the math gremlin hides."
-    },
-    psychology: {
-      definition: "a psychology concept about behavior, thought, development, learning, memory, or social influence",
-      keyIdeas: ["Define the behavior or mental process.", "Connect it to a theory, study design, or evidence type.", "Contrast it with a nearby concept so you can recognize it on a test."],
-      example: `For ${cleanTopic}, give a real-life scenario, identify the concept, and explain why it fits better than a similar term.`,
-      mistake: "Do not only name the term; explain the evidence or behavior pattern."
-    },
-    writing: {
-      definition: "a writing move involving claim, evidence, organization, style, grammar, or revision",
-      keyIdeas: ["Identify the purpose or prompt.", "Name the sentence/paragraph/essay part being improved.", "Explain how the choice affects clarity, argument, or reader understanding."],
-      example: `For ${cleanTopic}, write a before-and-after sentence or outline piece, then explain why the revision is stronger.`,
-      mistake: "Do not fix surface wording while ignoring purpose and structure."
-    },
-    history: {
-      definition: "a history concept involving events, people, causes, sources, comparison, or change over time",
-      keyIdeas: ["Place the topic in time and context.", "Separate causes, events, effects, and significance.", "Use evidence or sourcing instead of memorizing isolated facts."],
-      example: `For ${cleanTopic}, make a cause → event → effect chain and explain why it mattered.`,
-      mistake: "Do not list dates without explaining the historical logic."
-    }
-  };
-  const frame = subjectFrames[subjectKey] || subjectFrames.biology;
-  const noteFocus = notes && notes.trim() ? notes.trim().slice(0, 220) + (notes.trim().length > 220 ? "…" : "") : "No notes pasted yet — Kiwi will teach from the subject pattern and topic name, then you can add class notes for extra precision.";
   const sourceBlock = buildInlineSourceBlock(subjectKey, cleanTopic);
-  return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition:\nIn ${subject.label}, treat ${cleanTopic} as ${frame.definition}.\n\nKey ideas:\n${frame.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample:\n${frame.example}\n\nCommon mistake:\n${frame.mistake}\n\nHow to recognize it on a test:\nLook for the topic name, related vocabulary, data/diagrams, and a prompt asking you to explain, calculate, compare, or apply the idea.\n\nYour custom notes/question anchor:\n${noteFocus}${sourceBlock}`;
+  const hasNotes = Boolean(notes && notes.trim());
+  const noteFocus = hasNotes ? notes.trim().slice(0, 260) + (notes.trim().length > 260 ? "…" : "") : "";
+
+  if (!hasNotes) {
+    return `Custom topic needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for “${cleanTopic}” yet, so Kiwi will not invent a definition or facts.\n\nTo get correct custom-topic help:\n1. Paste your class definition, textbook excerpt, or teacher example into the notes box.\n2. Use Find Sources to open a reliable source if you do not have notes yet.\n3. Ask for Explain, Practice Problem, Flashcards, or Study Guide again; Kiwi will build from that source-backed anchor.\n\nWhat Kiwi can safely do now:\n• Keep the exact custom topic: ${cleanTopic}.\n• Give source links for ${subject.label}.\n• Avoid making up details just because the topic sounds like it belongs to a subject.${sourceBlock}`;
+  }
+
+  return `Custom Kiwi lesson: ${cleanTopic}${level}\n\nWorking definition from your notes:\n${noteFocus}\n\nWhat Kiwi can safely say:\n• This custom-topic output is based on your pasted prompt/notes, not an invented built-in lesson.\n• Use the note wording above as the definition or starting claim until you replace it with your teacher/textbook wording.\n• The safest example is the one already present in your prompt or notes.\n\nExample from your prompt/notes:\n${noteFocus}\n\nCommon mistake:\nDo not let Kiwi guess extra facts for ${cleanTopic}. If your class uses a specific definition, formula, diagram, source, or exception, paste it into the notes box so the output stays tied to that evidence.\n\nHow to recognize it on a test:\nLook for the exact keywords from your notes, related data/diagrams, or a prompt asking you to explain, calculate, compare, or apply ${cleanTopic}.${sourceBlock}`;
 }
 
 function buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state = DEFAULT_STATE }) {
@@ -1259,16 +1220,22 @@ function buildPracticeProblem({ subjectKey, topic, notes = "", state = DEFAULT_S
 
   const explanation = findExplanation(subjectKey, cleanTopic);
   const anchor = explanation?.title || cleanTopic;
-  const customNote = notes && notes.trim() ? notes.trim().slice(0, 180) + (notes.trim().length > 180 ? "…" : "") : "Add your class notes to make this custom practice more specific.";
-  const keyIdea = explanation?.keyIdeas?.[0] || `Use your notes to define ${cleanTopic}, then identify the rule, cause, structure, or pattern being tested.`;
-  const example = explanation?.example || `Use your notes/class prompt as evidence: ${customNote}`;
+  const hasNotes = Boolean(notes && notes.trim());
+
+  if (!explanation && !hasNotes) {
+    return `Custom practice needs a source-backed anchor: ${cleanTopic}\n\nI do not have a verified built-in practice set for “${cleanTopic}” yet, so Kiwi will not invent questions, formulas, examples, or solved answers.\n\nPaste your class definition, formula, data table, or example into the notes box. Then Kiwi can generate practice that stays tied to your topic instead of guessing.\n\nSafe practice starter for now:\n1. Find or paste one reliable definition for ${cleanTopic}.\n2. Underline the exact words, variables, dates, evidence, or diagram labels your class uses.\n3. Turn that source-backed information into one conceptual question and one free-response question.${sourceBlock}`;
+  }
+
+  const customNote = hasNotes ? notes.trim().slice(0, 180) + (notes.trim().length > 180 ? "…" : "") : "Add your class notes to make this custom practice more specific.";
+  const keyIdea = explanation?.keyIdeas?.[0] || `Use this source-backed note as the core idea: ${customNote}`;
+  const example = explanation?.example || `Use this notes/class prompt as evidence: ${customNote}`;
 
   if (STEM_SUBJECT_KEYS.has(subjectKey)) {
     const freeResponse = buildStemMathFreeResponse(cleanTopic, notes);
-    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set keeps conceptual understanding, but the free-response part is math-based — numbers, formulas, units, and shown work.${sourceBlock}`;
+    return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, using the notes anchor below as evidence.\n2. Concept check: ${keyIdea}\n\nMath-based free response questions\n1. ${freeResponse.q1} Show your work.\n2. ${freeResponse.q2} Show your work.\n\nAnswer key\nConceptual 1. Strong answer uses the note anchor or built-in lesson instead of guessing extra facts.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. ${freeResponse.a1}\nFree response 2. ${freeResponse.a2}\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set stays tied to built-in content or your pasted custom-topic anchor.${sourceBlock}`;
   }
 
-  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, then name the clue that tells you this topic is being tested.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it with evidence or a step-by-step fix.\n\nAnswer key\nConceptual 1. Strong answer defines the topic and names a test clue instead of only repeating vocabulary.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the rule or concept and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes the reasoning.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions — no prompt required.${sourceBlock}`;
+  return `Kiwi-generated practice: ${anchor}\n\nConceptual questions\n1. Explain ${anchor} in your own words, using the notes anchor below as evidence.\n2. Concept check: ${keyIdea}\n\nFree response questions\n1. Apply this topic to a full-sentence response: ${example}\n2. Common mistake hunt: write one wrong answer someone might give for ${anchor}, then correct it using only the built-in lesson or your notes anchor.\n\nAnswer key\nConceptual 1. Strong answer defines the topic with evidence from the built-in lesson or notes anchor.\nConceptual 2. Strong answer includes this core idea: ${keyIdea}\nFree response 1. Strong answer connects the example back to the source-backed topic anchor and explains the reasoning.\nFree response 2. Strong answer identifies the misconception and fixes it with evidence.\n\nCustom notes anchor:\n${customNote}\n\nKiwi check: this ${subject.label} practice set has both conceptual and free-response questions, but custom topics stay anchored to your notes instead of invented facts.${sourceBlock}`;
 }
 
 function compactNoteAnchor(notes, fallback) {
@@ -1337,6 +1304,30 @@ function buildKiwiStudyGuide({ subjectKey, cleanTopic, notes = "", state = DEFAU
   return `Kiwi-generated study guide: ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nSubject focus: ${subject.label}\n\nBig idea\n${anchor.overview}\n\nMust-know ideas\n${mustKnow}\n\nKey vocabulary / formulas / cues\n• Main term: ${anchor.title}\n• Recognition cue: ${anchor.testCue}\n• Class-note cue: ${anchor.customNote}\n\nWorked example\n${anchor.example}\n\nCommon mistake\n${anchor.mistake}\n\nQuick check\n1. Define ${anchor.title} without looking.\n2. ${stemCheck}\n3. Explain the common mistake and how to fix it.\n\n7-minute review plan\n1. Read the big idea once.\n2. Cover the Must-know ideas and recite them.\n3. Redo the worked example or make a parallel example.\n4. Answer the Quick check.\n5. Mark confidence: low, okay, or strong.${customSection}\n\nKiwi check: this is a filled-in study guide for ${anchor.title}, not a blank template for you to generate alone.${sourceBlock}`;
 }
 
+function buildKiwiQuiz({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
+  const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const sourceBlock = anchor.isCustom ? buildInlineSourceBlock(subjectKey, cleanTopic) : "";
+
+  if (anchor.isCustom && !(notes && notes.trim())) {
+    return `Quick Kiwi quiz needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for this custom topic yet, so Kiwi will not quiz you on made-up facts. Paste your class definition, prompt, or example into the notes box first.${sourceBlock}`;
+  }
+
+  return `Quick Kiwi quiz for ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nNotes/topic anchor:\n${anchor.customNote}\n\nQ1. Using the anchor above, what is the safest definition or central claim for ${anchor.title}?\nQ2. What detail, formula, evidence, or example from the anchor proves this is about ${anchor.title}?\nQ3. What is one mistake someone could make if they guessed beyond the provided anchor?\n\nAnswer check\n1. Your answer should reuse the built-in lesson or pasted notes, not invented facts.\n2. Your evidence should point to exact wording, data, a formula, or a scenario clue.\n3. The corrected mistake should stay inside the source-backed information Kiwi has.${sourceBlock}`;
+}
+
+function buildKiwiSummary({ subjectKey, cleanTopic, notes = "", state = DEFAULT_STATE }) {
+  const anchor = buildStudyContentAnchor({ subjectKey, cleanTopic, notes });
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const sourceBlock = anchor.isCustom ? buildInlineSourceBlock(subjectKey, cleanTopic) : "";
+
+  if (anchor.isCustom && !(notes && notes.trim())) {
+    return `Summary needs a source-backed anchor: ${cleanTopic}${level}\n\nI do not have a verified built-in lesson for this custom topic yet. Paste your class definition, textbook line, teacher prompt, or example into the notes box, and Kiwi will summarize that exact information instead of guessing.${sourceBlock}`;
+  }
+
+  return `Kiwi summary for ${anchor.title}${level}\nTopic/subtopic: ${cleanTopic}\n\nSource-backed anchor:\n${anchor.customNote}\n\nBig idea:\n${anchor.overview}\n\nTest-relevant details:\n${anchor.keyIdeas.map(item => `• ${item}`).join("\n")}\n\nExample or evidence:\n${anchor.example}\n\nWatch-out:\n${anchor.mistake}\n\nOne-sentence review:\n${anchor.title} is the topic, and the safest summary is the built-in lesson or pasted note anchor above.${sourceBlock}`;
+}
+
 function buildStudyResponse({ subjectKey, action, topic, notes, confidence, state = DEFAULT_STATE }) {
   const subject = getSubject(subjectKey);
   const cleanTopic = normalizeTopic(topic, subjectKey, state);
@@ -1346,11 +1337,11 @@ function buildStudyResponse({ subjectKey, action, topic, notes, confidence, stat
 
   const templates = {
     "Explain": buildTopicExplanation({ subjectKey, cleanTopic, notes, confidenceLine, noteHint, state }),
-    "Quiz Me": `Quick Kiwi quiz for ${cleanTopic}${level}:\n\nQ1. What is the core definition or rule?\nQ2. What is one common trap students make here?\nQ3. Apply it to a tiny example from your notes.\n\nAnswer out loud first. Kiwi does not accept telepathic studying.` ,
+    "Quiz Me": buildKiwiQuiz({ subjectKey, cleanTopic, notes, state }),
     "Flashcards": buildKiwiFlashcards({ subjectKey, cleanTopic, notes, state }),
     "Practice Problem": buildPracticeProblem({ subjectKey, topic: cleanTopic, notes, state }),
     "Study Guide": buildKiwiStudyGuide({ subjectKey, cleanTopic, notes, state }),
-    "Summarize Notes": `Summary plan for ${cleanTopic}${level}:\n\n• Big idea: write it in one sentence.\n• Details: keep only test-relevant facts.\n• Connections: link it to the previous topic.\n• Check: ask one question your teacher might ask.\n\n${noteHint}`,
+    "Summarize Notes": buildKiwiSummary({ subjectKey, cleanTopic, notes, state }),
     "Find Sources": buildSourceResponse({ subjectKey, cleanTopic }),
     "Step-by-Step": `Step-by-step math rescue for ${cleanTopic}${level}:\n\n1. Rewrite the problem cleanly.\n2. Label the knowns and unknowns.\n3. Pick the operation/theorem.\n4. Do exactly one algebra/calculus move per line.\n5. Check by substitution, graph shape, or units when possible.` ,
     "Mistake Check": `Mistake check for ${cleanTopic}${level}:\n\nKiwi will look for sign errors, dropped units, skipped assumptions, unlabeled graphs, and suspicious leaps. Circle the step where your confidence drops first.` ,

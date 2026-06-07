@@ -177,7 +177,7 @@ function testCustomCommonTopicGetsRealTeaching() {
   assert.doesNotMatch(response, /topic you can understand by asking/i);
 }
 
-function testUnknownCustomTopicGetsCustomTeachingMode() {
+function testUnknownCustomTopicUsesNotesWithoutInventingFacts() {
   const response = buildStudyResponse({
     subjectKey: "chemistry",
     action: "Explain",
@@ -188,12 +188,32 @@ function testUnknownCustomTopicGetsCustomTeachingMode() {
   });
   assert.match(response, /Custom Kiwi lesson/i);
   assert.match(response, /banana orbital sparkles/i);
-  assert.match(response, /Working definition/i);
-  assert.match(response, /Key ideas/i);
-  assert.match(response, /Example/i);
-  assert.match(response, /Common mistake/i);
-  assert.match(response, /orbital energy changes/i);
+  assert.match(response, /Working definition from your notes/i);
+  assert.match(response, /What Kiwi can safely say/i);
+  assert.match(response, /orbital energy changes when electrons absorb light/i);
+  assert.match(response, /Source check/i);
+  assert.doesNotMatch(response, /treat banana orbital sparkles as/i);
+  assert.doesNotMatch(response, /a chemistry idea involving particles, energy, bonding, reactions, structure, or measurable evidence/i);
   assert.doesNotMatch(response, /not in Kiwi's built-in lesson library yet/i);
+}
+
+function testUnknownCustomTopicWithoutNotesDoesNotInventTeaching() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Explain",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Custom topic needs a source-backed anchor/i);
+  assert.match(response, /banana orbital sparkles/i);
+  assert.match(response, /I do not have a verified built-in lesson/i);
+  assert.match(response, /Paste your class definition, textbook excerpt, or teacher example/i);
+  assert.match(response, /Source check/i);
+  assert.doesNotMatch(response, /Working definition:/i);
+  assert.doesNotMatch(response, /treat banana orbital sparkles as/i);
+  assert.doesNotMatch(response, /a chemistry idea involving particles, energy, bonding, reactions, structure, or measurable evidence/i);
 }
 
 function testCustomStemTopicGetsMathBasedPractice() {
@@ -320,11 +340,12 @@ function testFindSourcesForKnownAndCustomTopics() {
     subjectKey: "chemistry",
     action: "Explain",
     topic: "banana orbital sparkles",
-    notes: "",
+    notes: "orbital energy changes when electrons absorb light",
     confidence: "low",
     state: DEFAULT_STATE
   });
   assert.match(customLesson, /Custom Kiwi lesson: banana orbital sparkles/i);
+  assert.match(customLesson, /Working definition from your notes/i);
   assert.match(customLesson, /Source check/i);
   assert.match(customLesson, /OpenStax search/i);
   assert.match(customLesson, /Google Scholar search/i);
@@ -333,14 +354,50 @@ function testFindSourcesForKnownAndCustomTopics() {
     subjectKey: "chemistry",
     action: "Practice Problem",
     topic: "banana orbital sparkles",
-    notes: "",
+    notes: "orbital energy changes when electrons absorb light",
     confidence: "low",
     state: DEFAULT_STATE
   });
   assert.match(customPractice, /Kiwi-generated practice: banana orbital sparkles/i);
   assert.match(customPractice, /Math-based free response questions/i);
+  assert.match(customPractice, /orbital energy changes when electrons absorb light/i);
   assert.match(customPractice, /Source check/i);
   assert.match(customPractice, /OpenStax search/i);
+}
+
+function testCustomPracticeWithoutNotesDoesNotInventAnswerKey() {
+  const response = buildStudyResponse({
+    subjectKey: "chemistry",
+    action: "Practice Problem",
+    topic: "banana orbital sparkles",
+    notes: "",
+    confidence: "low",
+    state: DEFAULT_STATE
+  });
+  assert.match(response, /Custom practice needs a source-backed anchor/i);
+  assert.match(response, /banana orbital sparkles/i);
+  assert.match(response, /Paste your class definition, formula, data table, or example/i);
+  assert.match(response, /Source check/i);
+  assert.doesNotMatch(response, /Answer key/i);
+  assert.doesNotMatch(response, /numbers 12 and 3/i);
+  assert.doesNotMatch(response, /the rule, formula, or quantity your class uses/i);
+}
+
+function testCustomPromptUsesNotesAcrossStudyTools() {
+  const state = { ...DEFAULT_STATE, activeSubject: "biology", activeTopic: "banana receptor dance" };
+  ["Flashcards", "Study Guide", "Quiz Me", "Summarize Notes"].forEach(action => {
+    const response = buildStudyResponse({
+      subjectKey: "biology",
+      action,
+      topic: "banana receptor dance",
+      notes: "receptor changes shape after ligand binding",
+      confidence: "low",
+      state
+    });
+    assert.match(response, /banana receptor dance/i, `${action} should keep the custom topic`);
+    assert.match(response, /receptor changes shape after ligand binding/i, `${action} should use the custom prompt/notes`);
+    assert.doesNotMatch(response, /core definition or rule\?|tiny example from your notes|Big idea: write it in one sentence/i, `${action} should not use a generic prompt-only scaffold`);
+  });
 }
 
 function testChemistryKineticsIsBuiltInSubtopic() {
@@ -533,5 +590,5 @@ function testStudyModeEntryScaffold() {
   assert.match(app, /rel="noopener noreferrer"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicGetsCustomTeachingMode, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesDoesNotInventTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesDoesNotInventAnswerKey, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");
