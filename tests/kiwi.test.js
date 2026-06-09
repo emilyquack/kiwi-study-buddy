@@ -754,12 +754,15 @@ function testInteractiveBossBattleCreatesPlayableGameState() {
 }
 
 function testBossBattleQuestionsAreDiverseAndTopicRelevant() {
-  const game = createBossBattleGame({ subjectKey: "chemistry", topic: "kinetics", state: DEFAULT_STATE });
-  assert.deepEqual(game.questions.map(question => question.kind), ["definition", "scenario", "misconception", "calculation", "test-cue"]);
+  const game = createBossBattleGame({ subjectKey: "chemistry", topic: "kinetics", state: DEFAULT_STATE, battleNumber: 3 });
+  const kinds = game.questions.map(question => question.kind);
+  assert.equal(new Set(kinds).size, 5, "Boss battle should mix five different question kinds per battle");
+  assert(kinds.some(kind => /definition|core-idea|compare/.test(kind)), "Battle should include a concept/definition round");
+  assert(kinds.some(kind => /scenario|application|data/.test(kind)), "Battle should include an application/data round");
+  assert(kinds.some(kind => /misconception|test-cue|source/.test(kind)), "Battle should include misconception/test cue/source checking");
   const prompts = game.questions.map(question => question.prompt).join("\n");
-  assert.match(prompts, /scenario|student|lab|data|changes/i);
-  assert.match(prompts, /calculation|rate|doubles|halved|formula/i);
-  assert.match(prompts, /trap|mistake|wrong/i);
+  assert.match(prompts, /scenario|student|lab|data|changes|evidence|calculation|formula/i);
+  assert.match(prompts, /trap|mistake|wrong|misleading|source|clue/i);
 
   const oldGenericDistractors = /memorization label|only matters after the test|longest answer choice|most dramatic|Ignore vocabulary|Skip the setup/i;
   const topicWords = /rate|reaction|concentration|catalyst|activation|mechanism|coefficient|exponent|temperature|half-life|data|equilibrium|law/i;
@@ -768,6 +771,32 @@ function testBossBattleQuestionsAreDiverseAndTopicRelevant() {
   wrongChoices.forEach(choice => {
     assert.doesNotMatch(choice, oldGenericDistractors);
     assert.match(choice, topicWords, `Distractor should be a tricky kinetics-related answer: ${choice}`);
+  });
+}
+
+function testBossBattleCreatesFreshQuestionSetEachStart() {
+  const first = createBossBattleGame({ subjectKey: "chemistry", topic: "kinetics", state: DEFAULT_STATE, battleNumber: 1 });
+  const second = createBossBattleGame({ subjectKey: "chemistry", topic: "kinetics", state: DEFAULT_STATE, battleNumber: 2 });
+  const firstSignature = first.questions.map(question => `${question.kind}:${question.prompt}:${question.choices.map(choice => choice.text).join("|")}`).join("\n");
+  const secondSignature = second.questions.map(question => `${question.kind}:${question.prompt}:${question.choices.map(choice => choice.text).join("|")}`).join("\n");
+  assert.notEqual(secondSignature, firstSignature, "Starting boss battle twice should not reuse the same five prompts/answers");
+  assert.notEqual(second.battleId, first.battleId, "Each boss battle should have a fresh battle id");
+}
+
+function testBossBattleDiversifiesEverySubject() {
+  Object.keys(SUBJECTS).forEach((subjectKey, index) => {
+    const state = subjectKey === "math" ? { ...DEFAULT_STATE, activeMathLevel: "Algebra 1" } : DEFAULT_STATE;
+    const topic = getTopicsForSubject(subjectKey, state)[0];
+    const game = createBossBattleGame({ subjectKey, topic, state, battleNumber: index + 5 });
+    assert.equal(game.questions.length, 5, `${subjectKey} should get five boss rounds`);
+    assert.equal(new Set(game.questions.map(question => question.kind)).size, 5, `${subjectKey} rounds should use different question kinds`);
+    assert.equal(new Set(game.questions.map(question => question.prompt)).size, 5, `${subjectKey} prompts should not repeat`);
+    game.questions.forEach(question => {
+      assert.equal(question.choices.length, 3, `${subjectKey} question should have three choices`);
+      assert.equal(question.choices.filter(choice => choice.correct).length, 1, `${subjectKey} question should have one correct answer`);
+      assert.equal(new Set(question.choices.map(choice => choice.text)).size, 3, `${subjectKey} answer choices should be unique`);
+      assert(question.hint.length > 20, `${subjectKey} hint should be useful`);
+    });
   });
 }
 
@@ -801,5 +830,5 @@ function testInteractiveBossBattleHtmlHasClickableChoices() {
   assert.match(html, /aria-live="polite"/);
 }
 
-[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testInteractiveBossBattleCreatesPlayableGameState, testBossBattleQuestionsAreDiverseAndTopicRelevant, testInteractiveBossBattleAnswersUpdateHpAndRounds, testInteractiveBossBattleHtmlHasClickableChoices, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
+[testSubjectLibrary, testStudyResponse, testExplainGivesActualTopicTeaching, testBlankTopicUsesBuiltInLesson, testPracticeProblemIsGeneratedByKiwi, testPracticeProblemIncludesConceptualAndFreeResponseForEveryBuiltInTopic, testStemFreeResponseIsMathBasedForEveryBuiltInTopic, testEveryBuiltInTopicHasActualLessonLibraryEntry, testCustomCommonTopicGetsRealTeaching, testUnknownCustomTopicUsesNotesWithoutInventingFacts, testUnknownCustomTopicWithoutNotesUsesSourceGuidedTeaching, testCustomStemTopicGetsMathBasedPractice, testSignificantFiguresCustomPromptGetsCorrectChemistryTeaching, testSignificantFiguresCustomPromptGetsCorrectPractice, testMisspelledSignificantFiguresStillGetsCorrectChemistryTeaching, testFindSourcesForKnownAndCustomTopics, testCustomPracticeWithoutNotesUsesSourceGuidedQuestions, testSourceSummaryCanTeachCustomTopicWithoutNotes, testCustomPromptUsesNotesAcrossStudyTools, testChemistryKineticsIsBuiltInSubtopic, testFlashcardsAreGeneratedByKiwiForEveryBuiltInTopic, testStudyGuidesAreGeneratedByKiwiForEveryBuiltInTopic, testFlashcardsAndStudyGuidesWorkForCustomTopics, testMathTopicsAreLevelSpecific, testMathFallbackTopic, testWeakTopicBoard, testStorageFallback, testStudyModeEntryScaffold, testFiveFunFeatureScaffold, testMoodModesModifyStudyOutput, testBossBattleQuizModeGeneratesGameQuiz, testInteractiveBossBattleCreatesPlayableGameState, testBossBattleQuestionsAreDiverseAndTopicRelevant, testBossBattleCreatesFreshQuestionSetEachStart, testBossBattleDiversifiesEverySubject, testInteractiveBossBattleAnswersUpdateHpAndRounds, testInteractiveBossBattleHtmlHasClickableChoices, testResearchDetectiveModeUsesSourcesAndCrossChecks, testPanicButtonCreatesTinyRescuePlan, testAchievementBadgesAwardUniqueProgress].forEach(fn => fn());
 console.log("All Kiwi Study Buddy tests passed.");

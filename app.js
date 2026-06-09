@@ -128,6 +128,7 @@ const DEFAULT_STATE = {
   activeTopic: "cell membranes",
   activeMood: "cozy",
   bossBattle: null,
+  bossBattleCounter: 0,
   savedTopics: [],
   badges: []
 };
@@ -1474,39 +1475,153 @@ function makeBossChoice(text, correct = false) {
   return { text: compactBossChoice(text), correct };
 }
 
-function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_STATE }) {
-  const subject = getSubject(subjectKey);
-  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
-  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+function makeBossQuestion({ kind, prompt, hint, explanation, choices }) {
+  const seen = new Set();
+  const uniqueChoices = choices.map((choice, index) => {
+    let text = compactBossChoice(choice.text);
+    const base = text;
+    let suffix = 2;
+    while (seen.has(text.toLowerCase())) {
+      text = compactBossChoice(`${base} (${index === 0 ? "best answer" : `trap ${suffix}`})`);
+      suffix += 1;
+    }
+    seen.add(text.toLowerCase());
+    return { text, correct: Boolean(choice.correct) };
+  });
+  return { kind, prompt, hint, explanation, choices: uniqueChoices };
+}
+
+function rotateBossArray(items, offset) {
+  if (!items.length) return [];
+  const safeOffset = ((offset % items.length) + items.length) % items.length;
+  return items.slice(safeOffset).concat(items.slice(0, safeOffset));
+}
+
+function seededBossShuffle(items, seed) {
+  const next = items.slice();
+  let value = Math.abs(Math.floor(seed || 1));
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    value = (value * 1664525 + 1013904223) % 4294967296;
+    const swapIndex = value % (index + 1);
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+  }
+  return next;
+}
+
+function bossSeedFromOptions({ battleNumber, rng = Math.random }) {
+  if (Number.isFinite(Number(battleNumber)) && Number(battleNumber) > 0) return Number(battleNumber);
+  return Math.floor((typeof rng === "function" ? rng() : Math.random()) * 1000000) + Date.now();
+}
+
+const BOSS_SUBJECT_PACKS = {
+  biology: {
+    arena: "Bio Lab Lair",
+    dataLabel: "diagram/data evidence",
+    scenarioNoun: "a cell, organism, or ecosystem scenario",
+    wrongHabit: "ignoring structure-function evidence",
+    sourceLens: "textbook diagram, lab observation, or data table"
+  },
+  chemistry: {
+    arena: "Beaker Dungeon",
+    dataLabel: "lab data/calculation",
+    scenarioNoun: "a lab reaction or measurement scenario",
+    wrongHabit: "skipping units, coefficients, rates, or equilibrium evidence",
+    sourceLens: "balanced equation, units, graph, formula, or source data"
+  },
+  physics: {
+    arena: "Force-Field Arena",
+    dataLabel: "formula/graph data",
+    scenarioNoun: "a motion, force, energy, or circuit scenario",
+    wrongHabit: "using a formula without checking vectors, units, or assumptions",
+    sourceLens: "diagram, graph, units, equation, or free-body evidence"
+  },
+  math: {
+    arena: "Graph Goblin Tower",
+    dataLabel: "calculation/graph step",
+    scenarioNoun: "an equation, graph, table, or proof step",
+    wrongHabit: "copying a procedure without checking the condition or graph cue",
+    sourceLens: "worked step, formula condition, theorem cue, or graph behavior"
+  },
+  psychology: {
+    arena: "Brain Fog Castle",
+    dataLabel: "research/scenario evidence",
+    scenarioNoun: "a study, behavior, memory, or social scenario",
+    wrongHabit: "confusing correlation, causation, definitions, or research design",
+    sourceLens: "study design, operational definition, example, or ethical clue"
+  },
+  writing: {
+    arena: "Comma Goblin Colosseum",
+    dataLabel: "paragraph/evidence move",
+    scenarioNoun: "a thesis, paragraph, quote, or revision scenario",
+    wrongHabit: "summarizing without analysis or dropping evidence without context",
+    sourceLens: "prompt wording, thesis claim, quote context, or paragraph purpose"
+  },
+  history: {
+    arena: "Timeline Troll Bridge",
+    dataLabel: "timeline/source evidence",
+    scenarioNoun: "a cause/effect, primary-source, or comparison scenario",
+    wrongHabit: "listing facts without chronology, causation, or source context",
+    sourceLens: "date order, primary-source perspective, cause/effect chain, or comparison evidence"
+  }
+};
+
+function getBossSubjectPack(subjectKey) {
+  return BOSS_SUBJECT_PACKS[subjectKey] || {
+    arena: "Study Gremlin Arena",
+    dataLabel: "evidence",
+    scenarioNoun: "a class scenario",
+    wrongHabit: "ignoring the strongest clue",
+    sourceLens: "class notes, source evidence, or example clues"
+  };
+}
+
+function buildBossQuestionPool({ subjectKey, subject, anchor, level }) {
+  const pack = getBossSubjectPack(subjectKey);
   const ideaOne = anchor.keyIdeas[0] || anchor.overview;
   const ideaTwo = anchor.keyIdeas[1] || anchor.example;
   const ideaThree = anchor.keyIdeas[2] || anchor.testCue;
-  const questions = [
-    {
+  const stemRound = STEM_SUBJECT_KEYS.has(subjectKey);
+  const titleWithLevel = `${anchor.title}${level}`;
+  const dataVerb = stemRound ? "sets up the calculation/formula/data step" : "uses the evidence/source clue";
+  const dataNoun = stemRound ? "calculation, formula, graph, data, and unit evidence" : "source, scenario, paragraph, timeline, or example evidence";
+
+  return [
+    makeBossQuestion({
       kind: "definition",
-      prompt: `Round 1 — Definition Strike: Which answer best explains ${anchor.title}?`,
+      prompt: `Definition Strike in the ${pack.arena}: Which answer best explains ${titleWithLevel}?`,
       hint: anchor.overview,
       explanation: anchor.overview,
       choices: [
         makeBossChoice(anchor.overview, true),
-        makeBossChoice(`${anchor.title} only means ${ideaOne}; ${ideaTwo} is not part of the topic.`),
-        makeBossChoice(`${anchor.title} predicts the final answer without using evidence such as ${anchor.testCue}.`)
+        makeBossChoice(`${anchor.title} is only this single clue: ${ideaOne}; ignore the rest of the ${subject.label} evidence.`),
+        makeBossChoice(`${anchor.title} is a guess you can pick without checking ${anchor.testCue}.`)
       ]
-    },
-    {
+    }),
+    makeBossQuestion({
+      kind: "core-idea",
+      prompt: `Core-Idea Claw: Which must-know idea belongs with ${titleWithLevel}?`,
+      hint: ideaOne,
+      explanation: ideaOne,
+      choices: [
+        makeBossChoice(ideaOne, true),
+        makeBossChoice(`Swap the key rule for this trap: ${anchor.mistake}`),
+        makeBossChoice(`Use ${anchor.title} only as vocabulary and skip the ${pack.sourceLens}.`)
+      ]
+    }),
+    makeBossQuestion({
       kind: "scenario",
-      prompt: `Round 2 — Scenario Dodge: Which mini-scenario actually fits ${anchor.title}?`,
+      prompt: `Scenario Dodge: Which ${pack.scenarioNoun} actually fits ${titleWithLevel}?`,
       hint: anchor.example,
       explanation: anchor.example,
       choices: [
         makeBossChoice(anchor.example, true),
-        makeBossChoice(`A student sees ${ideaOne} but ignores this required clue: ${ideaTwo}.`),
-        makeBossChoice(`A lab report mentions ${anchor.title}, but the student explains the opposite trap: ${anchor.mistake}`)
+        makeBossChoice(`A student notices ${ideaOne}, then ignores the scenario clue that says ${ideaTwo}.`),
+        makeBossChoice(`The setup mentions ${anchor.title}, but the answer uses the misleading habit of ${pack.wrongHabit}: ${anchor.mistake}`)
       ]
-    },
-    {
+    }),
+    makeBossQuestion({
       kind: "misconception",
-      prompt: `Round 3 — Trap Spell: Which statement is the wrong idea Kiwi should block?`,
+      prompt: `Trap Spell: Which statement is the wrong idea Kiwi should block for ${titleWithLevel}?`,
       hint: anchor.mistake,
       explanation: anchor.mistake,
       choices: [
@@ -1514,21 +1629,43 @@ function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_S
         makeBossChoice(`Use ${ideaOne} together with ${ideaTwo} before deciding what ${anchor.title} means.`),
         makeBossChoice(`Check ${anchor.testCue} before trusting a shortcut about ${anchor.title}.`)
       ]
-    },
-    {
-      kind: "calculation",
-      prompt: `Round 4 — Evidence/Calculation Strike: Which move uses ${anchor.title} correctly with data, examples, or source evidence?`,
+    }),
+    makeBossQuestion({
+      kind: "data-challenge",
+      prompt: `${stemRound ? "Calculation" : "Evidence"} Strike: Which move correctly uses ${titleWithLevel} with ${pack.dataLabel}?`,
       hint: anchor.example,
       explanation: anchor.example,
       choices: [
-        makeBossChoice(anchor.example, true),
-        makeBossChoice(`Keep the result unchanged even when the ${anchor.title} evidence changes: ${ideaOne}.`),
-        makeBossChoice(`Use a nearby shortcut instead of the class/source evidence: ${anchor.mistake}`)
+        makeBossChoice(`${anchor.example} This is the move that ${dataVerb} instead of guessing.`, true),
+        makeBossChoice(`Keep the ${dataNoun} unchanged even when the ${anchor.title} evidence changes: ${ideaOne}.`),
+        makeBossChoice(`Use a nearby shortcut instead of the ${pack.sourceLens}: ${anchor.mistake}`)
       ]
-    },
-    {
+    }),
+    makeBossQuestion({
+      kind: "compare",
+      prompt: `Compare Combo: Which answer separates ${titleWithLevel} from a nearby-but-wrong idea?`,
+      hint: ideaTwo,
+      explanation: ideaTwo,
+      choices: [
+        makeBossChoice(`${anchor.title} needs this clue: ${ideaTwo}; the nearby wrong idea skips or reverses it.`, true),
+        makeBossChoice(`${anchor.title} is interchangeable with any related ${subject.label} ${pack.dataLabel} answer, even when the clue says ${ideaOne}.`),
+        makeBossChoice(`The unsafe comparison ignores ${ideaOne} and skips the ${pack.dataLabel} tied to ${anchor.title}.`)
+      ]
+    }),
+    makeBossQuestion({
+      kind: "application",
+      prompt: `Application Pounce: What should you do first when a new problem asks about ${titleWithLevel}?`,
+      hint: anchor.testCue,
+      explanation: anchor.testCue,
+      choices: [
+        makeBossChoice(`Identify the ${pack.sourceLens}, then connect it to ${anchor.testCue}.`, true),
+        makeBossChoice(`Start with ${anchor.mistake}, because a familiar trap is faster than checking the problem.`),
+        makeBossChoice(`Answer from vibes before checking the ${pack.dataLabel} or the topic clue.`)
+      ]
+    }),
+    makeBossQuestion({
       kind: "test-cue",
-      prompt: `Round 5 — Test-Cue Finisher: What clue says the question is really testing ${anchor.title}?`,
+      prompt: `Test-Cue Finisher: What clue says the question is really testing ${titleWithLevel}?`,
       hint: anchor.testCue,
       explanation: anchor.testCue,
       choices: [
@@ -1536,11 +1673,61 @@ function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_S
         makeBossChoice(`Only look for the word ${anchor.title}; ignore details like ${ideaThree}.`),
         makeBossChoice(`Pick the answer that repeats ${anchor.title}, even if it contradicts ${anchor.mistake}`)
       ]
-    }
+    }),
+    makeBossQuestion({
+      kind: "source-check",
+      prompt: `Source Shield: Which study move checks ${titleWithLevel} before memorizing it?`,
+      hint: `Cross-check ${anchor.title} with ${pack.sourceLens}.`,
+      explanation: `Strong answers verify ${anchor.title} with ${pack.sourceLens} instead of memorizing unsupported wording.`,
+      choices: [
+        makeBossChoice(`Cross-check ${anchor.title} using ${pack.sourceLens}, then compare it with this cue: ${anchor.testCue}.`, true),
+        makeBossChoice(`Trust the first sentence that mentions ${anchor.title}, even when it conflicts with ${ideaOne}.`),
+        makeBossChoice(`Ignore source evidence and memorize the trap: ${anchor.mistake}`)
+      ]
+    }),
+    makeBossQuestion({
+      kind: "explain-back",
+      prompt: `Explain-Back Blast: Which 20-second explanation would damage the ${anchor.title} Gremlin?`,
+      hint: `${anchor.overview} ${ideaOne}`,
+      explanation: `${anchor.overview} ${ideaOne}`,
+      choices: [
+        makeBossChoice(`${anchor.overview} Key clue: ${ideaOne}`, true),
+        makeBossChoice(`${anchor.title} is whatever answer feels most familiar; details like ${ideaTwo} are optional.`),
+        makeBossChoice(`The best explanation of ${anchor.title} is the common mistake: ${anchor.mistake}`)
+      ]
+    })
   ];
+}
+
+function selectBossBattleQuestions(questionPool, seed) {
+  const rotated = rotateBossArray(questionPool, seed - 1);
+  const selected = [];
+  const usedKinds = new Set();
+  for (const question of rotated) {
+    if (!usedKinds.has(question.kind)) {
+      selected.push(question);
+      usedKinds.add(question.kind);
+    }
+    if (selected.length === 5) break;
+  }
+  return selected.map((question, index) => ({
+    ...question,
+    prompt: `Round ${index + 1} — ${question.prompt}`,
+    choices: seededBossShuffle(question.choices, seed * 97 + index * 13)
+  }));
+}
+
+function createBossBattleGame({ subjectKey, topic, notes = "", state = DEFAULT_STATE, battleNumber, rng = Math.random }) {
+  const subject = getSubject(subjectKey);
+  const { cleanTopic, anchor } = getCustomOrBuiltInAnchor(subjectKey, topic, notes, state);
+  const level = subjectKey === "math" ? ` (${state.activeMathLevel})` : "";
+  const seed = bossSeedFromOptions({ battleNumber, rng });
+  const questionPool = buildBossQuestionPool({ subjectKey, subject, anchor, level });
+  const questions = selectBossBattleQuestions(questionPool, seed);
   return {
     mode: "interactive-boss-battle",
     status: "active",
+    battleId: `${subjectKey}-${normalizeForLookup(cleanTopic).replace(/\s+/g, "-") || "topic"}-${seed}`,
     subjectKey,
     topic: cleanTopic,
     title: `${anchor.title}${level}`,
@@ -1786,11 +1973,14 @@ function setupApp() {
 
   function startBossBattle() {
     const topic = getCurrentTopic();
+    const battleNumber = (Number(state.bossBattleCounter) || 0) + 1;
+    state.bossBattleCounter = battleNumber;
     const game = createBossBattleGame({
       subjectKey: state.activeSubject,
       topic,
       notes: els.notes.value,
-      state
+      state,
+      battleNumber
     });
     state.bossBattle = game;
     state = awardAchievementBadges(state, { action: "Boss Battle", topic, mood: state.activeMood });
